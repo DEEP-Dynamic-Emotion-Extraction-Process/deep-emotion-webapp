@@ -1,6 +1,6 @@
 // src/components/dashboard/AnalysisCard.jsx
 import React from 'react';
-import { ListItem, ListItemButton, ListItemText, ListItemIcon, Chip } from '@mui/material';
+import { ListItem, ListItemButton, ListItemText, ListItemIcon, Chip, Box, LinearProgress } from '@mui/material'; // Adicione Box e LinearProgress
 import MovieIcon from '@mui/icons-material/Movie';
 import { Link, useLocation } from 'react-router-dom';
 
@@ -17,13 +17,13 @@ export const AnalysisCard = ({ analysis }) => {
   const statusInfo = statusStyles[analysis.status] || { label: analysis.status, color: 'default' };
 
   return (
-    <ListItem disablePadding>
+    <ListItem disablePadding sx={{ display: 'block' }}>
       <ListItemButton
         component={Link}
         to={`/dashboard/analysis/${analysis.id}`}
         selected={isActive}
       >
-        <ListItemIcon>
+        <ListItemIcon sx={{ minWidth: 40 }}>
           <MovieIcon />
         </ListItemIcon>
         <ListItemText
@@ -31,6 +31,12 @@ export const AnalysisCard = ({ analysis }) => {
           secondary={<Chip label={statusInfo.label} color={statusInfo.color} size="small" />}
         />
       </ListItemButton>
+      {/* --- BARRA DE PROGRESSO --- */}
+      {analysis.status === 'PROCESSING' && (
+        <Box sx={{ px: 2, pb: 1 }}>
+          <LinearProgress variant="determinate" value={analysis.progress || 0} />
+        </Box>
+      )}
     </ListItem>
   );
 };

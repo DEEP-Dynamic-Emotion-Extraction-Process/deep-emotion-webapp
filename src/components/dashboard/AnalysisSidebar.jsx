@@ -1,34 +1,20 @@
 // src/components/dashboard/AnalysisSidebar.jsx
-import React, { useState, useEffect } from 'react';
-import { Box, Drawer, List, Toolbar, Divider, Typography, Button, CircularProgress } from '@mui/material';
+import React from 'react'; // Remova useState e useEffect
+import { Box, Drawer, List, Toolbar, Divider, Typography, Button, CircularProgress, ListItem, ListItemButton, ListItemIcon, ListItemText } from '@mui/material';
 import { Link } from 'react-router-dom';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import SettingsIcon from '@mui/icons-material/Settings';
 
-import { getUserVideos } from '../../api/videoService'; // Este caminho está correto
+import { useAnalyses } from '../../contexts/AnalysisContext'; // Verifique se o nome está correto
 import { AnalysisCard } from './AnalysisCard';
 
-const drawerWidth = 280; // Aumentei um pouco a largura
+const drawerWidth = 280;
 
 export const AnalysisSidebar = () => {
-  const [analyses, setAnalyses] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState('');
+  // Use o hook para obter o estado partilhado
+  const { analyses, isLoading, error } = useAnalyses();
 
-  useEffect(() => {
-    const fetchAnalyses = async () => {
-      try {
-        const userVideos = await getUserVideos();
-        setAnalyses(userVideos);
-      } catch (err) {
-        setError('Não foi possível carregar as análises.');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchAnalyses();
-  }, []); // O array vazio garante que isto só é executado uma vez
+  // A lógica de useEffect para buscar dados foi movida para o contexto
 
   let content;
   if (isLoading) {
@@ -37,7 +23,7 @@ export const AnalysisSidebar = () => {
     content = <Typography color="error" sx={{ p: 2 }}>{error}</Typography>;
   } else {
     content = (
-      <List>
+      <List sx={{ p: 0 }}>
         {analyses.map((analysis) => (
           <AnalysisCard key={analysis.id} analysis={analysis} />
         ))}
@@ -51,11 +37,16 @@ export const AnalysisSidebar = () => {
       sx={{
         width: drawerWidth,
         flexShrink: 0,
-        [`& .MuiDrawer-paper`]: { width: drawerWidth, boxSizing: 'border-box' },
+        [`& .MuiDrawer-paper`]: { 
+          width: drawerWidth, 
+          boxSizing: 'border-box',
+          display: 'flex',
+          flexDirection: 'column' 
+        },
       }}
     >
       <Toolbar />
-      <Box sx={{ p: 2 }}>
+      <Box sx={{ p: 2, flexShrink: 0 }}>
         <Button 
           variant="contained" 
           fullWidth 
@@ -67,8 +58,10 @@ export const AnalysisSidebar = () => {
         </Button>
       </Box>
       <Divider />
-      {content}
-      <Box sx={{ marginTop: 'auto' }}> {/* Empurra o item para o fundo */}
+      <Box sx={{ flexGrow: 1, overflow: 'auto' }}>
+        {content}
+      </Box>
+      <Box sx={{ flexShrink: 0 }}>
         <Divider />
         <List>
             <ListItem disablePadding>

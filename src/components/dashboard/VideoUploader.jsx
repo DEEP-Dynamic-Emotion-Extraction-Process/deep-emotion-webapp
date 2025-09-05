@@ -1,12 +1,12 @@
 // src/components/dashboard/VideoUploader.jsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import { Paper, Typography, Box, Button, LinearProgress, Alert, TextField } from '@mui/material';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { styled } from '@mui/material/styles';
 
-import { initializeUpload, finalizeUpload } from '../../api/videoService';
+import { uploadVideo } from '../../api/videoService';
+import { useAnalyses } from '../../contexts/AnalysisContext';
 
 const Input = styled('input')({
   display: 'none',
@@ -16,50 +16,45 @@ export const VideoUploader = () => {
   const [file, setFile] = useState(null);
   const [title, setTitle] = useState('');
   const [uploadProgress, setUploadProgress] = useState(0);
-  const [status, setStatus] = useState({ message: '', type: '' }); // type: 'info', 'success', 'error'
+  const [status, setStatus] = useState({ message: '', type: '' });
   const [isUploading, setIsUploading] = useState(false);
+
   const navigate = useNavigate();
+  const { addAnalysis } = useAnalyses();
 
   const handleFileChange = (event) => {
     const selectedFile = event.target.files[0];
     if (selectedFile) {
       setFile(selectedFile);
-      // Usa o nome do arquivo como título inicial, removendo a extensão
       setTitle(selectedFile.name.split('.').slice(0, -1).join('.'));
       setStatus({ message: '', type: '' });
+      setUploadProgress(0);
     }
   };
 
   const handleUpload = async () => {
     if (!file || !title) {
-      setStatus({ message: 'Por favor, selecione um arquivo e forneça um título.', type: 'error' });
+      setStatus({ message: 'Por favor, selecione um ficheiro e forneça um título.', type: 'error' });
       return;
     }
 
     setIsUploading(true);
-    setStatus({ message: 'Iniciando upload...', type: 'info' });
+    setStatus({ message: 'A iniciar upload...', type: 'info' });
 
     try {
-      // Passo 1: Obter a URL pré-assinada da nossa API
-      const { upload_url, s3_key } = await initializeUpload(file.name);
-      setStatus({ message: 'Enviando vídeo para o S3...', type: 'info' });
-
-      // Passo 2: Fazer o upload do arquivo diretamente para o S3
-      await axios.put(upload_url, file, {
-        headers: { 'Content-Type': file.type },
-        onUploadProgress: (progressEvent) => {
-          const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-          setUploadProgress(percent);
-        },
+      const analysisResult = await uploadVideo(file, title, (progressEvent) => {
+        const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+        setUploadProgress(percent);
+        if (percent < 100) {
+            setStatus({ message: `A enviar... ${percent}%`, type: 'info' });
+        } else {
+            setStatus({ message: 'Upload concluído! A solicitar análise...', type: 'info' });
+        }
       });
 
-      // Passo 3: Finalizar o processo e disparar a análise
-      setStatus({ message: 'Upload concluído! Solicitando análise...', type: 'info' });
-      const analysisResult = await finalizeUpload(s3_key, title);
+      addAnalysis(analysisResult);
 
-      setStatus({ message: 'Análise iniciada com sucesso! Redirecionando...', type: 'success' });
-
-      // Redireciona para a página de detalhes da nova análise
+      setStatus({ message: 'Análise iniciada com sucesso!', type: 'success' });
       navigate(`/dashboard/analysis/${analysisResult.id}`);
 
     } catch (error) {
@@ -67,6 +62,11 @@ export const VideoUploader = () => {
       const errorMsg = error.response?.data?.error || 'Ocorreu um erro inesperado.';
       setStatus({ message: errorMsg, type: 'error' });
       setIsUploading(false);
+    } finally {
+       setIsUploading(false);
+       setFile(null);
+       setTitle('');
+       setUploadProgress(0);
     }
   };
 
@@ -76,7 +76,7 @@ export const VideoUploader = () => {
         Iniciar Nova Análise
       </Typography>
       <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-        Selecione um arquivo de vídeo (até 30s) e dê um título para sua análise.
+        Selecione um ficheiro de vídeo (até 30s) e dê um título à sua análise.
       </Typography>
 
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -89,7 +89,7 @@ export const VideoUploader = () => {
 
         {file && (
           <>
-            <Typography variant="body2">Arquivo selecionado: <strong>{file.name}</strong></Typography>
+            <Typography variant="body2">Ficheiro selecionado: <strong>{file.name}</strong></Typography>
             <TextField
               fullWidth
               label="Título da Análise"
@@ -99,7 +99,7 @@ export const VideoUploader = () => {
               disabled={isUploading}
             />
             <Button onClick={handleUpload} variant="contained" size="large" disabled={isUploading}>
-              {isUploading ? 'Processando...' : 'Analisar'}
+              {isUploading ? 'A processar...' : 'Analisar'}
             </Button>
           </>
         )}

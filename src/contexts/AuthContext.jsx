@@ -1,6 +1,6 @@
 // src/contexts/AuthContext.jsx
 import React, { createContext, useState, useEffect, useContext } from 'react';
-import { getMe } from '../api/authService';
+import { getProfile } from '../api/authService';
 import apiClient from '../api/api';
 
 // 1. Cria o Contexto
@@ -18,7 +18,7 @@ export const AuthProvider = ({ children }) => {
       if (token) {
         apiClient.defaults.headers.common['Authorization'] = `Bearer ${token}`;
         try {
-          const userData = await getMe();
+          const userData = await getProfile();
           setUser(userData);
         } catch (error) {
           console.error("Token inválido ou expirado. Limpando...");
@@ -34,7 +34,7 @@ export const AuthProvider = ({ children }) => {
   const loginAction = async (token) => {
     localStorage.setItem('access_token', token);
     apiClient.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-    const userData = await getMe();
+    const userData = await getProfile();
     setUser(userData);
   };
 

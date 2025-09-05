@@ -1,77 +1,161 @@
 // src/components/analysis/InsightsCharts.jsx
 import React, { useMemo } from 'react';
-import { Typography, Box, useTheme } from '@mui/material';
+import { Typography, Box, useTheme, Grid } from '@mui/material';
 import { 
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
-  RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar,
+  PieChart, Pie, Cell, Legend,
+  AreaChart, Area
 } from 'recharts';
 
-/**
- * Processa os dados dos frames para agregar a contagem de cada emoção.
- * @param {Array} frames - A lista de frames com dados de emoção.
- * @returns {Array} - Um array de objetos para ser usado pelos gráficos.
- */
-const processFrameData = (frames = []) => {
-  if (!frames || frames.length === 0) {
-    return [];
-  }
+// --- TRADUÇÃO E MAPEAMENTO DE CORES ---
+const EMOTION_MAP = {
+  HAPPY: 'Feliz',
+  SAD: 'Triste',
+  ANGRY: 'Raiva',
+  SURPRISED: 'Surpreso',
+  NEUTRAL: 'Neutro',
+  FEAR: 'Medo',
+  DISGUST: 'Nojo',
+};
 
+const EMOTION_COLORS = {
+  'Feliz': '#2e7d32',
+  'Triste': '#1976d2',
+  'Raiva': '#d32f2f',
+  'Surpreso': '#ed6c02',
+  'Neutro': '#757575',
+  'Medo': '#8e24aa',
+  'Nojo': '#cddc39',
+};
+
+const ALL_EMOTIONS = ['HAPPY', 'SAD', 'ANGRY', 'SURPRISED', 'NEUTRAL', 'FEAR', 'DISGUST'];
+
+const processOverallData = (frames = []) => {
   const emotionCounts = frames.reduce((acc, frame) => {
     acc[frame.emotion] = (acc[frame.emotion] || 0) + 1;
     return acc;
   }, {});
-
-  return Object.entries(emotionCounts).map(([emotion, count]) => ({
-    name: emotion.charAt(0).toUpperCase() + emotion.slice(1),
-    Contagem: count,
-  })).sort((a, b) => b.Contagem - a.Contagem);
+  
+  return ALL_EMOTIONS.map(emotion => ({
+    name: EMOTION_MAP[emotion] || emotion,
+    Contagem: emotionCounts[emotion] || 0,
+  }));
 };
 
+const processTemporalData = (frames = []) => {
+    if (!frames || frames.length === 0) return [];
+    const secondsMap = {};
+    frames.forEach(frame => {
+        const second = Math.floor(frame.video_timestamp_sec);
+        if (!secondsMap[second]) {
+            secondsMap[second] = {};
+            ALL_EMOTIONS.forEach(e => secondsMap[second][EMOTION_MAP[e]] = 0);
+        }
+        secondsMap[second][EMOTION_MAP[frame.emotion]] += 1;
+    });
+    return Object.entries(secondsMap).map(([second, counts]) => ({
+        time: parseInt(second),
+        ...counts
+    }));
+};
 
 export const InsightsCharts = ({ frames }) => {
-  const theme = useTheme(); // Acede ao tema do MUI para usar as cores
+  const theme = useTheme();
+  
+  const overallData = useMemo(() => processOverallData(frames), [frames]);
+  const temporalData = useMemo(() => processTemporalData(frames), [frames]);
+  
+  const pieChartData = overallData.filter(data => data.Contagem > 0);
 
-  // useMemo garante que os dados só são reprocessados se os frames mudarem
-  const chartData = useMemo(() => processFrameData(frames), [frames]);
-
-  if (chartData.length === 0) {
+  if (pieChartData.length === 0) {
     return <Typography color="text.secondary">Não há dados de emoção para exibir.</Typography>;
   }
 
-  return (
-    <Box>
-      {/* Gráfico de Barras */}
-      <Typography variant="h6" gutterBottom>Distribuição de Emoções</Typography>
-      <Box sx={{ height: 300, mb: 4 }}>
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={chartData} layout="vertical" margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke={theme.palette.divider} />
-            <XAxis type="number" stroke={theme.palette.text.secondary} />
-            <YAxis type="category" dataKey="name" stroke={theme.palette.text.secondary} width={80} />
-            <Tooltip
-              cursor={{ fill: 'rgba(255, 255, 255, 0.1)' }}
-              contentStyle={{ backgroundColor: theme.palette.background.paper, border: `1px solid ${theme.palette.divider}` }}
-            />
-            <Bar dataKey="Contagem" fill={theme.palette.primary.main} />
-          </BarChart>
-        </ResponsiveContainer>
-      </Box>
+  const tooltipStyle = {
+    backgroundColor: theme.palette.background.paper,
+    border: `1px solid ${theme.palette.divider}`,
+    color: theme.palette.text.primary
+  };
 
-      {/* Gráfico de Radar */}
-      <Typography variant="h6" gutterBottom>Perfil Emocional</Typography>
-      <Box sx={{ height: 300 }}>
-        <ResponsiveContainer width="100%" height="100%">
-          <RadarChart cx="50%" cy="50%" outerRadius="80%" data={chartData}>
-            <PolarGrid stroke={theme.palette.divider} />
-            <PolarAngleAxis dataKey="name" stroke={theme.palette.text.secondary} />
-            <PolarRadiusAxis angle={30} domain={[0, 'dataMax + 1']} tick={false} axisLine={false} />
-            <Radar name="Frames" dataKey="Contagem" stroke={theme.palette.secondary.main} fill={theme.palette.secondary.main} fillOpacity={0.6} />
-            <Tooltip 
-              contentStyle={{ backgroundColor: theme.palette.background.paper, border: `1px solid ${theme.palette.divider}` }}
-            />
-          </RadarChart>
-        </ResponsiveContainer>
-      </Box>
-    </Box>
+  // --- FUNÇÃO PARA RENDERIZAR A LEGENDA COLORIDA ---
+  const renderColorfulLegendText = (value, entry) => {
+    const { color } = entry;
+    return <span style={{ color }}>{value}</span>;
+  };
+
+  return (
+    <Grid container spacing={6}>
+      <Grid item xs={12}>
+        <Typography variant="h6" gutterBottom align="center">Evolução no Tempo</Typography>
+        <Box sx={{ height: 300, width: 400, mx: 'auto' }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={temporalData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke={theme.palette.divider} />
+              <XAxis dataKey="time" unit="s" stroke={theme.palette.text.secondary} />
+              <YAxis stroke={theme.palette.text.secondary} />
+              <Tooltip contentStyle={tooltipStyle} />
+              <Legend formatter={renderColorfulLegendText} />
+              {Object.values(EMOTION_MAP).map(translatedName => (
+                <Area key={translatedName} type="monotone" dataKey={translatedName} name={translatedName} stackId="1" stroke={EMOTION_COLORS[translatedName]} fill={EMOTION_COLORS[translatedName]} fillOpacity={0.6} />
+              ))}
+            </AreaChart>
+          </ResponsiveContainer>
+        </Box>
+      </Grid>
+      
+      <Grid item xs={12}>
+        <Typography variant="h6" gutterBottom align="center">Distribuição</Typography>
+        <Box sx={{ height: 300, width: 400, mx: 'auto' }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={pieChartData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
+              <XAxis dataKey="name" stroke={theme.palette.text.secondary} />
+              <YAxis stroke={theme.palette.text.secondary} />
+              <Tooltip
+                cursor={{ fill: 'rgba(255, 255, 255, 0.1)' }}
+                contentStyle={tooltipStyle}
+              />
+              <Bar dataKey="Contagem" name="Contagem">
+                  {pieChartData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={EMOTION_COLORS[entry.name]} />
+                  ))}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </Box>
+      </Grid>
+
+      <Grid item xs={12}>
+        <Typography variant="h6" gutterBottom align="center">Proporção</Typography>
+        <Box sx={{ height: 300, width: 400, mx: 'auto' }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie data={pieChartData} cx="50%" cy="50%" innerRadius={60} outerRadius={80} fill="#8884d8" paddingAngle={5} dataKey="Contagem" nameKey="name">
+                {pieChartData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={EMOTION_COLORS[entry.name]} />
+                ))}
+              </Pie>
+              <Tooltip contentStyle={tooltipStyle} />
+              <Legend formatter={renderColorfulLegendText} />
+            </PieChart>
+          </ResponsiveContainer>
+        </Box>
+      </Grid>
+      
+      <Grid item xs={12}>
+        <Typography variant="h6" gutterBottom align="center">Perfil Emocional</Typography>
+        <Box sx={{ height: 300, width: 400, mx: 'auto' }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <RadarChart cx="50%" cy="50%" outerRadius="70%" data={overallData}>
+              <PolarGrid stroke={theme.palette.divider} />
+              <PolarAngleAxis dataKey="name" tick={{ fill: theme.palette.text.secondary, fontSize: 12 }} />
+              <PolarRadiusAxis angle={30} domain={[0, 'dataMax + 1']} tick={false} axisLine={false} />
+              <Radar name="Frames" dataKey="Contagem" stroke={theme.palette.secondary.main} fill={theme.palette.secondary.main} fillOpacity={0.6} />
+              <Tooltip contentStyle={tooltipStyle} />
+            </RadarChart>
+          </ResponsiveContainer>
+        </Box>
+      </Grid>
+    </Grid>
   );
 };

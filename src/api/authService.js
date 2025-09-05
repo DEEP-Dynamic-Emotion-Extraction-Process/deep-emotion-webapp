@@ -21,8 +21,9 @@ export const login = async (credentials) => {
 
 /**
  * Busca os dados do usuário autenticado usando o token JWT armazenado.
+ * Adaptado para o endpoint /auth/profile da sua API.
  */
-export const getMe = async () => {
-  const response = await apiClient.get('/auth/me');
+export const getProfile = async () => {
+  const response = await apiClient.get('/auth/profile');
   return response.data;
 };
