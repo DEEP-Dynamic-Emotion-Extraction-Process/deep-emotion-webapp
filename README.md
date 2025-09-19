@@ -54,7 +54,7 @@ npm install
 ```
 
 ### 3. Configurar o Ambiente
-Crie um ficheiro `.env` na raiz do projeto para configurar a URL da sua API.
+Crie um ficheiro `.env` na raiz do projeto para configurar as URLs da sua API e do servidor de WebSocket.
 
 ```bash
 # Crie o ficheiro .env

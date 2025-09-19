@@ -1,10 +1,12 @@
 // src/contexts/AnalysisContext.jsx
+
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import io from 'socket.io-client';
 import { getUserVideos } from '../api/videoService';
 
 const AnalysisContext = createContext(null);
-const socket = io(import.meta.env.VITE_API_BASE_URL.replace('/api/v2', ''));
+
+const socket = io(import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000');
 
 export const AnalysisProvider = ({ children }) => {
   const [analyses, setAnalyses] = useState([]);
@@ -24,7 +26,7 @@ export const AnalysisProvider = ({ children }) => {
     }
   };
 
-useEffect(() => {
+  useEffect(() => {
     fetchAnalyses();
 
     socket.on('processing_update', (data) => {
@@ -46,6 +48,7 @@ useEffect(() => {
       socket.off('processing_update');
     };
   }, []);
+
   const addAnalysis = (newAnalysis) => {
     setAnalyses(currentAnalyses => [newAnalysis, ...currentAnalyses]);
   };
