@@ -2,7 +2,6 @@
 import React from 'react';
 import { Box, Tooltip, useTheme } from '@mui/material';
 
-// Mapeamento de emoções para cores para consistência visual
 const emotionColorMapping = {
   HAPPY: '#2e7d32', // Verde
   SAD: '#1976d2',   // Azul
@@ -14,21 +13,13 @@ const emotionColorMapping = {
   default: '#424242'
 };
 
-/**
- * Renderiza uma linha do tempo interativa das emoções detetadas.
- * @param {object} props
- * @param {Array} props.frames - A lista de frames com dados de emoção.
- * @param {number} props.duration - A duração total do vídeo em segundos.
- * @param {Function} props.onSeek - Função para ser chamada quando o utilizador clica na linha do tempo.
- */
 export const EmotionTimeline = ({ frames, duration, onSeek }) => {
   const theme = useTheme();
 
   if (!frames || frames.length === 0) {
-    return null; // Não renderiza nada se não houver frames
+    return null; 
   }
 
-  // Função para lidar com o clique na linha do tempo
   const handleTimelineClick = (event) => {
     if (typeof onSeek !== 'function') return;
 
@@ -57,13 +48,11 @@ export const EmotionTimeline = ({ frames, duration, onSeek }) => {
         }}
       >
         {frames.map((frame, index) => {
-          // Calcula a duração deste segmento de emoção
           const nextFrame = frames[index + 1];
           const startTime = frame.video_timestamp_sec;
           const endTime = nextFrame ? nextFrame.video_timestamp_sec : duration;
           const segmentDuration = endTime - startTime;
           
-          // Calcula a largura percentual do segmento
           const segmentWidth = (segmentDuration / duration) * 100;
           const color = emotionColorMapping[frame.emotion] || emotionColorMapping.default;
 

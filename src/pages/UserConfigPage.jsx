@@ -2,11 +2,8 @@
 import { Container, Typography, Box, Paper, Divider, Button, TextField } from '@mui/material';
 import { useAuth } from '../hooks/useAuth';
 
-/**
- * Página para o utilizador visualizar e gerir as suas informações de conta.
- */
 export const UserConfigPage = () => {
-  const { user } = useAuth(); // Obtém os dados do utilizador a partir do nosso contexto
+  const { user } = useAuth(); 
 
   return (
     <Container maxWidth="md">
@@ -14,8 +11,6 @@ export const UserConfigPage = () => {
         <Typography variant="h4" component="h1" gutterBottom>
           Configurações da Conta
         </Typography>
-
-        {/* Secção de Informações do Perfil */}
         <Paper sx={{ p: 3, mt: 2, mb: 4 }}>
           <Typography variant="h6" gutterBottom>
             Informações do Perfil
@@ -28,7 +23,7 @@ export const UserConfigPage = () => {
                 fullWidth
                 margin="normal"
                 InputProps={{
-                  readOnly: true, // Apenas para leitura
+                  readOnly: true,
                 }}
                 variant="filled"
               />
@@ -58,7 +53,6 @@ export const UserConfigPage = () => {
           )}
         </Paper>
 
-        {/* Secção para Futuras Ações */}
         <Paper sx={{ p: 3 }}>
            <Typography variant="h6" gutterBottom>
             Ações da Conta
