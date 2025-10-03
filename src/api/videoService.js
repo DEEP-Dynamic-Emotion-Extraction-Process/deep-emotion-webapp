@@ -26,7 +26,8 @@ export const uploadVideo = async (file, title, onUploadProgress) => {
   } else {
     // --- FLUXO S3 ---
     // 1. Obter URL pré-assinada
-    const { upload_url, s3_key } = await apiClient.post('/videos/upload', { filename: file.name });
+    const response = await apiClient.post('/videos/upload', { filename: file.name });
+    const { upload_url, s3_key } = response.data; // <-- ALTERAÇÃO AQUI
 
     // 2. Upload direto para S3 (usando axios puro, sem o token da nossa API)
     await axios.put(upload_url, file, {
@@ -35,8 +36,8 @@ export const uploadVideo = async (file, title, onUploadProgress) => {
     });
 
     // 3. Finalizar e disparar análise
-    const response = await apiClient.post('/videos/upload/finalize', { s3_key, title });
-    return response.data;
+    const finalizeResponse = await apiClient.post('/videos/upload/finalize', { s3_key, title });
+    return finalizeResponse.data;
   }
 };
 
