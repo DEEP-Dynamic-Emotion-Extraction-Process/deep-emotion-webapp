@@ -53,15 +53,19 @@ export const VideoUploader = () => {
       });
 
       addAnalysis(analysisResult);
-
       setStatus({ message: 'Análise iniciada com sucesso!', type: 'success' });
       navigate(`/dashboard/analysis/${analysisResult.id}`);
 
     } catch (error) {
-      console.error("Erro no processo de upload:", error);
-      const errorMsg = error.response?.data?.error || 'Ocorreu um erro inesperado.';
-      setStatus({ message: errorMsg, type: 'error' });
-      setIsUploading(false);
+      console.error("Erro detalhado no processo de upload:", error);
+
+      const backendError = error.response?.data?.error || 'Ocorreu um erro de rede.';
+      const backendDetail = error.response?.data?.detail || 'Verifique a consola do navegador e os logs do servidor para mais detalhes.';
+      
+      const comprehensiveError = `${backendError} ${backendDetail}`;
+
+      setStatus({ message: comprehensiveError, type: 'error' });
+      
     } finally {
        setIsUploading(false);
        setFile(null);
