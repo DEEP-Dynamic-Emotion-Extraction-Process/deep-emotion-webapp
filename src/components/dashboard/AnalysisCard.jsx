@@ -28,7 +28,6 @@ export const AnalysisCard = ({ analysis }) => {
         </ListItemIcon>
         <ListItemText
           primary={analysis.title}
-          secondary={<Chip label={statusInfo.label} color={statusInfo.color} size="small" />}
         />
       </ListItemButton>
       {/* --- BARRA DE PROGRESSO --- */}
