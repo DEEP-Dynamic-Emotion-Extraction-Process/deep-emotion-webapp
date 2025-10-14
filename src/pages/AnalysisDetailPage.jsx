@@ -90,7 +90,7 @@ export const AnalysisDetailPage = () => {
 
         <Grid container spacing={4} direction="column" alignItems="center">
           
-          <Grid item xs={12} sx={{ width: '100%', maxWidth: '960px' }}>
+          <Grid sx={{ width: '100%', maxWidth: '960px' }}>
             <Paper sx={{ mb: 2, overflow: 'hidden' }}>
               <VideoPlayer ref={videoRef} videoUrl={analysis.video_url} />
             </Paper>
@@ -108,7 +108,7 @@ export const AnalysisDetailPage = () => {
             </Paper>
           </Grid>
           
-          <Grid item xs={12} sx={{ width: '100%', maxWidth: '960px' }}>
+          <Grid sx={{ width: '100%', maxWidth: '960px' }}>
             <Paper>
               <Box sx={{ p: 2 }}>
                 <Typography variant="h6">Insights da Análise</Typography>
