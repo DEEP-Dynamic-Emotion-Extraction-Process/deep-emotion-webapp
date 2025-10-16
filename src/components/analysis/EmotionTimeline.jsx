@@ -2,16 +2,16 @@
 import React from 'react';
 import { Box, Tooltip, useTheme } from '@mui/material';
 
-// Mapeamento de emoções para cores para consistência visual
+// O mapeamento de cores agora usa chaves em MAIÚSCULAS para corresponder à nova lógica
 const emotionColorMapping = {
-  HAPPY: '#2e7d32', // Verde
-  SAD: '#1976d2',   // Azul
-  ANGRY: '#d32f2f',  // Vermelho
-  SURPRISED: '#ed6c02', // Laranja
-  NEUTRAL: '#757575', // Cinzento
-  FEAR: '#8e24aa',  // Roxo
-  DISGUST: '#cddc39', // Lima
-  default: '#424242'
+  HAPPY: '#2e7d32',       // Verde
+  SAD: '#1976d2',         // Azul
+  ANGRY: '#d32f2f',        // Vermelho
+  SURPRISED: '#ed6c02',   // Laranja
+  NEUTRAL: '#757575',     // Cinzento
+  FEAR: '#8e24aa',        // Roxo
+  DISGUST: '#cddc39',     // Lima
+  DEFAULT: '#424242'
 };
 
 /**
@@ -57,18 +57,36 @@ export const EmotionTimeline = ({ frames, duration, onSeek }) => {
         }}
       >
         {frames.map((frame, index) => {
-          // Calcula a duração deste segmento de emoção
+          // --- LÓGICA ATUALIZADA ---
+          // Encontra a emoção dominante para este frame
+          let dominantEmotion = 'DEFAULT';
+          if (frame.emotions && frame.confidences) {
+            let maxConfidence = -1;
+            let dominantIndex = -1;
+            
+            frame.confidences.forEach((confidence, idx) => {
+              if (confidence > maxConfidence) {
+                maxConfidence = confidence;
+                dominantIndex = idx;
+              }
+            });
+
+            if (dominantIndex !== -1) {
+              dominantEmotion = frame.emotions[dominantIndex].toUpperCase();
+            }
+          }
+          // --- FIM DA LÓGICA ATUALIZADA ---
+
           const nextFrame = frames[index + 1];
           const startTime = frame.video_timestamp_sec;
           const endTime = nextFrame ? nextFrame.video_timestamp_sec : duration;
           const segmentDuration = endTime - startTime;
           
-          // Calcula a largura percentual do segmento
           const segmentWidth = (segmentDuration / duration) * 100;
-          const color = emotionColorMapping[frame.emotion] || emotionColorMapping.default;
+          const color = emotionColorMapping[dominantEmotion] || emotionColorMapping.DEFAULT;
 
           return (
-            <Tooltip key={frame.id} title={`${frame.emotion} em ${startTime.toFixed(2)}s`}>
+            <Tooltip key={frame.id} title={`${dominantEmotion} em ${startTime.toFixed(2)}s`}>
               <Box
                 sx={{
                   width: `${segmentWidth}%`,

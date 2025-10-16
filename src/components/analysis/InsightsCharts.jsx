@@ -1,26 +1,48 @@
 // src/components/analysis/InsightsCharts.jsx
-import * as React from 'react';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Typography, CircularProgress, useTheme } from '@mui/material';
-import { RadarChart, Gauge, BarChart } from '@mui/x-charts';
+import { BarChart, Gauge, RadarChart, RadarAxis } from '@mui/x-charts';
 
-// --- Constantes (sem alterações) ---
+// --- Constantes e Funções de Utilidade ---
+
+const ALL_EMOTIONS = ['angry', 'disgust', 'fear', 'happy', 'neutral', 'sad', 'surprised'];
+
 const EMOTION_MAP = {
-  HAPPY: 'Feliz', SAD: 'Triste', ANGRY: 'Raiva', SURPRISED: 'Surpreso',
-  NEUTRAL: 'Neutro', FEAR: 'Medo', DISGUST: 'Nojo', UNDEFINED: 'Não Identificado'
-};
-const EMOTION_COLORS = {
-  'Feliz': '#4caf50',
-  'Triste': '#2196f3',
-  'Raiva': '#f44336',
-  'Surpreso': '#ff9800',
-  'Neutro': '#9e9e9e',
-  'Medo': '#9c27b0',
-  'Nojo': '#cddc39',
-  'Não Identificado': '#607d8b'
+  angry: 'Raiva',
+  disgust: 'Nojo',
+  fear: 'Medo',
+  happy: 'Feliz',
+  neutral: 'Neutro',
+  sad: 'Triste',
+  surprised: 'Surpreso'
 };
 
-const ALL_EMOTIONS = ['HAPPY', 'SAD', 'ANGRY', 'SURPRISED', 'NEUTRAL', 'FEAR', 'DISGUST', 'UNDEFINED'];
+const EMOTION_COLORS = {
+  'Raiva': '#f44336',
+  'Nojo': '#cddc39',
+  'Medo': '#9c27b0',
+  'Feliz': '#4caf50',
+  'Neutro': '#9e9e9e',
+  'Triste': '#2196f3',
+  'Surpreso': '#ff9800'
+};
+
+// Função para clarear uma cor hexadecimal (para as barras secundárias)
+const lightenColor = (color, percent) => {
+  const num = parseInt(color.slice(1), 16),
+    amt = Math.round(2.55 * percent),
+    R = (num >> 16) + amt,
+    G = (num >> 8 & 0x00FF) + amt,
+    B = (num & 0x0000FF) + amt;
+  return `#${(0x1000000 + (R < 255 ? R < 1 ? 0 : R : 255) * 0x10000 + (G < 255 ? G < 1 ? 0 : G : 255) * 0x100 + (B < 255 ? B < 1 ? 0 : B : 255)).toString(16).slice(1)}`;
+};
+
+// Função para obter a cor do gradiente para o Gauge
+const getGaugeColor = (value) => {
+  if (value < 40) return '#f44336'; // Vermelho
+  if (value < 70) return '#ff9800'; // Amarelo/Laranja
+  return '#4caf50'; // Verde
+};
 
 const styles = (theme) => ({
   kpiContainer: {
@@ -102,58 +124,66 @@ export const InsightsCharts = ({ frames }) => {
   const [chartData, setChartData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  console.log('Frames recebidos para análise:', frames);
-
   useEffect(() => {
     if (!frames || frames.length === 0) {
       setIsLoading(false);
       setChartData(null);
       return;
     }
-
-    const emotionCounts = {};
-    let totalConfidence = 0;
-    let validFrameCount = 0;
-
-    ALL_EMOTIONS.forEach(e => { emotionCounts[e] = 0; });
-
+    const emotionStats = {};
+    ALL_EMOTIONS.forEach(emotion => {
+      emotionStats[emotion] = {
+        primaryCount: 0,
+        secondaryCount: 0,
+        primaryConfidenceSum: 0,
+      };
+    });
+    const frameCount = frames.length;
     frames.forEach(frame => {
-      if (frame && frame.emotion && ALL_EMOTIONS.includes(frame.emotion) && typeof frame.confidence === 'number') {
-        emotionCounts[frame.emotion]++;
-        totalConfidence += frame.confidence;
-        validFrameCount++; 
+      if (frame && frame.emotions && frame.confidences) {
+        const sortedEmotions = frame.emotions
+          .map((emotion, index) => ({ emotion, confidence: frame.confidences[index] }))
+          .sort((a, b) => b.confidence - a.confidence);
+        if (sortedEmotions.length > 0) {
+          const primary = sortedEmotions[0];
+          emotionStats[primary.emotion].primaryCount++;
+          emotionStats[primary.emotion].primaryConfidenceSum += primary.confidence;
+        }
+        if (sortedEmotions.length > 1) {
+          const secondary = sortedEmotions[1];
+          emotionStats[secondary.emotion].secondaryCount++;
+        }
       }
     });
-
-    if (validFrameCount === 0) {
-      setIsLoading(false);
-      setChartData(null);
-      return; 
-    }
-
-    const predominantEmotion = Object.keys(emotionCounts).reduce((a, b) =>
-      emotionCounts[a] > emotionCounts[b] ? a : b
+    const predominantEmotion = Object.keys(emotionStats).reduce((a, b) =>
+      emotionStats[a].primaryCount > emotionStats[b].primaryCount ? a : b
     );
-
-    const averageConfidence = (totalConfidence / validFrameCount) * 100;
-    const emotionPercentages = ALL_EMOTIONS.map(emotion =>
-      (emotionCounts[emotion] / validFrameCount) * 100
-    );
-
+    const averageConfidencesByEmotion = ALL_EMOTIONS.map(emotion => {
+      const stats = emotionStats[emotion];
+      return stats.primaryCount === 0 ? 0 : stats.primaryConfidenceSum / stats.primaryCount;
+    });
+    const validAverages = averageConfidencesByEmotion.filter(avg => avg > 0);
+    const totalAverage = validAverages.length > 0
+      ? (validAverages.reduce((sum, avg) => sum + avg, 0) / validAverages.length) * 100
+      : 0;
+    const emotionPercentages = ALL_EMOTIONS.map(emotion => {
+      const primaryPercentage = (emotionStats[emotion].primaryCount / frameCount) * 100;
+      const secondaryPercentage = (emotionStats[emotion].secondaryCount / frameCount) * 100;
+      return [primaryPercentage, secondaryPercentage];
+    });
     setChartData({
-      frameCount: frames.length,
+      frameCount,
       predominantEmotion,
-      averageConfidence,
+      averageConfidence: totalAverage,
       emotionPercentages,
     });
-
     setIsLoading(false);
   }, [frames]);
 
   if (isLoading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 400 }}>
-        <CircularProgress /> <Typography sx={{ ml: 2 }}>Analisando dados...</Typography>
+        <CircularProgress /> <Typography sx={{ ml: 2 }}>A analisar dados...</Typography>
       </Box>
     );
   }
@@ -162,15 +192,97 @@ export const InsightsCharts = ({ frames }) => {
     return <Typography>Não há dados suficientes para exibir os insights.</Typography>;
   }
 
-  const barChartXAxisData = ALL_EMOTIONS.map(e => EMOTION_MAP[e]);
-  const barSeriesDataWithColor = chartData.emotionPercentages.map((percentage, index) => ({
-    percentage: percentage,
-    color: EMOTION_COLORS[barChartXAxisData[index]] || '#808080',
-  }));
+  // Dados para o BarChart
+  const barChartColors = ALL_EMOTIONS.flatMap((emotion, index) => [
+    {
+      angry: { primary: EMOTION_COLORS[EMOTION_MAP[emotion]], secondary: lightenColor(EMOTION_COLORS[EMOTION_MAP[emotion]], 20) },
+      disgust: { primary: EMOTION_COLORS[EMOTION_MAP[emotion]], secondary: lightenColor(EMOTION_COLORS[EMOTION_MAP[emotion]], 20) },
+      fear: { primary: EMOTION_COLORS[EMOTION_MAP[emotion]], secondary: lightenColor(EMOTION_COLORS[EMOTION_MAP[emotion]], 20) },
+      happy: { primary: EMOTION_COLORS[EMOTION_MAP[emotion]], secondary: lightenColor(EMOTION_COLORS[EMOTION_MAP[emotion]], 20) },
+      neutral: { primary: EMOTION_COLORS[EMOTION_MAP[emotion]], secondary: lightenColor(EMOTION_COLORS[EMOTION_MAP[emotion]], 20) },
+      sad: { primary: EMOTION_COLORS[EMOTION_MAP[emotion]], secondary: lightenColor(EMOTION_COLORS[EMOTION_MAP[emotion]], 20) },
+      surprised: { primary: EMOTION_COLORS[EMOTION_MAP[emotion]], secondary: lightenColor(EMOTION_COLORS[EMOTION_MAP[emotion]], 20) },
+    }
+  ])
+
+  console.log('Bar Chart Series:', barChartColors);
+
+  const barSeries = ALL_EMOTIONS.flatMap((emotion, index) => {
+    // Pega os valores de porcentagem para evitar repetição
+    const primaryValue = chartData.emotionPercentages[index][0] || 0;
+    const secondaryValue = chartData.emotionPercentages[index][1] || 0;
+
+    return [
+      {
+        data: ALL_EMOTIONS.map((_, i) =>
+          // Converte para 2 casas decimais e depois de volta para número
+          i === index ? parseFloat(primaryValue.toFixed(2)) : 0
+        ),
+        label: `Primária (${EMOTION_MAP[emotion]})`,
+        id: `pvId-${index}`,
+        yAxisId: 'leftAxisId',
+        color: EMOTION_COLORS[EMOTION_MAP[emotion]],
+        stack: 'pv-stack',
+        highlightScope: { highlight: 'item' },
+        // Opcional, mas recomendado: formata o valor no tooltip
+        valueFormatter: (value) => `${value.toFixed(2)}%`,
+      },
+      {
+        data: ALL_EMOTIONS.map((_, i) =>
+          // Usando o operador unário (+) que é uma alternativa a parseFloat()
+          i === index ? +secondaryValue.toFixed(2) : 0
+        ),
+        label: `Secundária (${EMOTION_MAP[emotion]})`,
+        id: `uvId-${index}`,
+        yAxisId: 'leftAxisId',
+        color: lightenColor(EMOTION_COLORS[EMOTION_MAP[emotion]], 20),
+        stack: 'uv-stack',
+        highlightScope: { highlight: 'item' },
+        // Opcional, mas recomendado: formata o valor no tooltip
+        valueFormatter: (value) => `${value.toFixed(2)}%`,
+      }
+    ];
+  });
+
+  console.log('Bar Series:', barSeries);
+
+  // Dados para o RadarChart (filtrando emoções com 0%)
+  const radarMetrics = [];
+  const radarPrimaryData = [];
+  const radarSecondaryData = [];
+
+  chartData.emotionPercentages.forEach(([primary, secondary], index) => {
+    if (primary > 0 || secondary > 0) {
+      radarMetrics.push(EMOTION_MAP[ALL_EMOTIONS[index]]);
+      // CONVERSÃO: Converte para 2 casas decimais e mantém como NÚMERO
+      radarPrimaryData.push(parseFloat(primary.toFixed(2)));
+      radarSecondaryData.push(parseFloat(secondary.toFixed(2)));
+    }
+  });
+
+  const radarSeries = [
+    {
+      data: radarPrimaryData,
+      label: 'Primária',
+      area: true,
+      fillArea: true,
+      color: 'rgba(76, 175, 80, 0.6)',
+      valueFormatter: (value) => `${value.toFixed(2)}%`
+    },
+    {
+      data: radarSecondaryData,
+      label: 'Secundária',
+      area: true,
+      fillArea: true,
+      color: 'rgba(255, 193, 7, 0.6)',
+      valueFormatter: (value) => `${value.toFixed(2)}%`
+    }
+  ];
 
   return (
     <>
       <Box sx={componentStyles.kpiContainer}>
+        {/* KPI: Emoção Predominante */}
         <Box sx={componentStyles.kpiItem}>
           <Typography variant="h6" sx={componentStyles.kpiTitle}>Emoção Predominante</Typography>
           <Typography variant="h3" sx={{ ...componentStyles.kpiValue, color: EMOTION_COLORS[EMOTION_MAP[chartData.predominantEmotion]] }}>
@@ -178,17 +290,31 @@ export const InsightsCharts = ({ frames }) => {
           </Typography>
         </Box>
 
+        {/* KPI: Imagens Analisadas */}
         <Box sx={componentStyles.kpiItem}>
-          <Typography variant="h6" sx={componentStyles.kpiTitle}>Frames Analisados</Typography>
+          <Typography variant="h6" sx={componentStyles.kpiTitle}>Imagens Analisadas</Typography>
           <Typography variant="h3" sx={componentStyles.kpiValue}>
             {chartData.frameCount}
           </Typography>
         </Box>
 
+        {/* KPI: Confiabilidade com gradiente */}
         <Box sx={componentStyles.kpiItem}>
-          <Typography variant="h6" sx={componentStyles.kpiTitle}>Confiabilidade Média</Typography>
-          <Gauge height={130} value={Math.round(chartData.averageConfidence)} startAngle={-110} endAngle={110}
-            sx={{ ...componentStyles.chartStyling, ['& .MuiGauge-valueText']: { fontSize: 32, transform: 'translate(0, -10px)', fill: '#FFF' } }}
+          <Typography variant="h6" sx={componentStyles.kpiTitle}>Confiabilidade</Typography>
+          <Gauge
+            height={130}
+            value={Math.round(chartData.averageConfidence)}
+            startAngle={-110}
+            endAngle={110}
+            sx={{
+              ...componentStyles.chartStyling,
+              '& .MuiGauge-valueArc': { fill: getGaugeColor(chartData.averageConfidence) },
+              '& .MuiGauge-valueText': {
+                fontSize: 32,
+                transform: 'translate(0, -10px)',
+                fill: getGaugeColor(chartData.averageConfidence),
+              }
+            }}
             text={({ value }) => `${value}%`}
           />
         </Box>
@@ -196,40 +322,69 @@ export const InsightsCharts = ({ frames }) => {
 
       <Box sx={componentStyles.chartsContainer}>
         <Box sx={componentStyles.mainChartContainer}>
-          <Typography variant="h6" sx={componentStyles.chartTitle}>Frequência de Emoções Detectadas</Typography>
+          <Typography variant="h5" sx={{ ...componentStyles.chartTitle, mb: 6 }}>Frequência de <br />Emoções Detetadas</Typography>
           <BarChart
-            height={450}
-            series={[{ data: barSeriesDataWithColor.map(value => value.percentage) }]}
-            xAxis={[{
-              data: barChartXAxisData, scaleType: 'band', label: 'Emoções',
-              colorMap: {
-                type: 'ordinal',
-                colors: barSeriesDataWithColor.map(value => value.color)
-              }
-            }]}
-            yAxis={[{ max: 100, min: 0 }]}
-            grid={{ horizontal: true }}
+            height={500}
+            series={barSeries}
+            xAxis={[{ data: ALL_EMOTIONS.map(e => EMOTION_MAP[e]), id: 'x-axis-id', scaleType: 'band' }]}
+            yAxis={[
+              { max: 100, min: 0 },
+              { id: 'leftAxisId' },
+              { id: 'rightAxisId', position: 'right' },
+            ]}
             sx={componentStyles.chartStyling}
+            hideLegend={true}
+            slotProps={{
+              tooltip: {
+                trigger: 'item',
+              },
+            }}
+            margin={0}
           />
         </Box>
+        {/* Gráfico de Radar */}
         <Box sx={componentStyles.sideContainer}>
           <Box sx={componentStyles.sideChartContainer}>
             <Typography variant="h6" sx={componentStyles.chartTitle}>Radar de Frequência</Typography>
-            <RadarChart
-              series={[{ data: chartData.emotionPercentages, area: true, color: theme.palette.primary.main }]}
-              shape='circular' height={220}
-              radar={{ max: 100, metrics: ALL_EMOTIONS.map(emotion => EMOTION_MAP[emotion]) }}
-              sx={componentStyles.chartStyling}
-            />
+            {radarPrimaryData.length > 0 ? (
+              <RadarChart
+                series={radarSeries}
+                shape='circular' height={220}
+                radar={{ max: 100, metrics: radarMetrics }}
+                sx={componentStyles.chartStyling}
+              >
+                <RadarAxis
+                  metric={radarMetrics[0]}
+                  divisions={4}
+                  labelOrientation="horizontal"
+                  textAnchor="start"
+                  angle="30"
+                />
+              </RadarChart>
+            ) : (
+              <Typography>Sem dados para o radar.</Typography>
+            )}
           </Box>
           <Box sx={componentStyles.sideChartContainer}>
             <Typography variant="h6" sx={componentStyles.chartTitle}>Radar de Frequência</Typography>
-            <RadarChart
-              series={[{ data: chartData.emotionPercentages, area: true, color: theme.palette.primary.main }]}
-              shape='circular' height={220}
-              radar={{ max: 100, metrics: ALL_EMOTIONS.map(emotion => EMOTION_MAP[emotion]) }}
-              sx={componentStyles.chartStyling}
-            />
+            {radarPrimaryData.length > 0 ? (
+              <RadarChart
+                series={radarSeries}
+                shape='circular' height={220}
+                radar={{ max: 100, metrics: radarMetrics }}
+                sx={componentStyles.chartStyling}
+              >
+                <RadarAxis
+                  metric={radarMetrics[0]}
+                  divisions={4}
+                  labelOrientation="horizontal"
+                  textAnchor="start"
+                  angle="30"
+                />
+              </RadarChart>
+            ) : (
+              <Typography>Sem dados para o radar.</Typography>
+            )}
           </Box>
         </Box>
       </Box>
