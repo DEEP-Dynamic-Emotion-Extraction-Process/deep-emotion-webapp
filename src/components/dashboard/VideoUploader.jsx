@@ -73,10 +73,10 @@ export const VideoUploader = () => {
   return (
     <Paper elevation={3} sx={{ p: 4 }}>
       <Typography variant="h5" component="h2" gutterBottom>
-        Iniciar Nova Análise
+        Upload a New Video for Analysis
       </Typography>
       <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-        Selecione um ficheiro de vídeo (até 30s) e dê um título à sua análise.
+        Select a video file (up to 30s) and provide a title for your analysis.
       </Typography>
 
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
