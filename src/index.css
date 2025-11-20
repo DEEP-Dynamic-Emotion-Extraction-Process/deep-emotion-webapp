@@ -10,25 +10,19 @@ body {
   background-color: #121212;
 }
 
-/* --- ESTILOS DA BARRA DE DESLIZAMENTO --- */
-
-/* Largura da barra de deslizamento */
 ::-webkit-scrollbar {
   width: 10px;
 }
 
-/* Fundo da barra (a calha) */
 ::-webkit-scrollbar-track {
-  background: #1e1e1e; /* Cor do 'paper' do seu tema */
+  background: #1e1e1e; 
 }
 
-/* A parte que desliza (o polegar) */
 ::-webkit-scrollbar-thumb {
-  background: #555; /* Um cinzento subtil */
+  background: #555; 
   border-radius: 5px;
 }
 
-/* Efeito ao passar o rato por cima */
 ::-webkit-scrollbar-thumb:hover {
-  background: #777; /* Um cinzento um pouco mais claro */
+  background: #777; 
 }

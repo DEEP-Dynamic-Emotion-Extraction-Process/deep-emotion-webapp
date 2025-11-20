@@ -1,6 +1,6 @@
 // src/components/dashboard/AnalysisCard.jsx
 import React from 'react';
-import { ListItem, ListItemButton, ListItemText, ListItemIcon, Chip, Box, LinearProgress } from '@mui/material'; // Adicione Box e LinearProgress
+import { ListItem, ListItemButton, ListItemText, ListItemIcon, Chip, Box, LinearProgress } from '@mui/material'; 
 import MovieIcon from '@mui/icons-material/Movie';
 import { Link, useLocation } from 'react-router-dom';
 
@@ -30,7 +30,6 @@ export const AnalysisCard = ({ analysis }) => {
           primary={analysis.title}
         />
       </ListItemButton>
-      {/* --- BARRA DE PROGRESSO --- */}
       {analysis.status === 'PROCESSING' && (
         <Box sx={{ px: 2, pb: 1 }}>
           <LinearProgress variant="determinate" value={analysis.progress || 0} />

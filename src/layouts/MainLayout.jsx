@@ -7,7 +7,7 @@ export const MainLayout = () => {
   return (
     <Box>
       <Navbar />
-      <Toolbar /> {/* Espaçador para o conteúdo não ficar atrás da Navbar fixa */}
+      <Toolbar /> 
       <main>
         <Outlet />
       </main>

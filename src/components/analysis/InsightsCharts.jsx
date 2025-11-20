@@ -3,31 +3,28 @@ import React, { useState, useEffect } from 'react';
 import { Box, Typography, CircularProgress, useTheme } from '@mui/material';
 import { BarChart, Gauge, RadarChart, RadarAxis } from '@mui/x-charts';
 
-// --- Constantes e Funções de Utilidade ---
-
 const ALL_EMOTIONS = ['angry', 'disgust', 'fear', 'happy', 'neutral', 'sad', 'surprised'];
 
 const EMOTION_MAP = {
-    angry: 'Raiva',
-    disgust: 'Nojo',
-    fear: 'Medo',
-    happy: 'Feliz',
-    neutral: 'Neutro',
-    sad: 'Triste',
-    surprised: 'Surpreso'
+    angry: 'Angry',
+    disgust: 'Disgust',
+    fear: 'Fear',
+    happy: 'Happy',
+    neutral: 'Neutral',
+    sad: 'Sad',
+    surprised: 'Surprised'
 };
 
 const EMOTION_COLORS = {
-    'Raiva': '#f44336',
-    'Nojo': '#cddc39',
-    'Medo': '#9c27b0',
-    'Feliz': '#4caf50',
-    'Neutro': '#9e9e9e',
-    'Triste': '#2196f3',
-    'Surpreso': '#ff9800'
+    'Angry': '#f44336',
+    'Disgust': '#cddc39',
+    'Fear': '#9c27b0',
+    'Happy': '#4caf50',
+    'Neutral': '#9e9e9e',
+    'Sad': '#2196f3',
+    'Surprised': '#ff9800'
 };
 
-// Função para clarear uma cor hexadecimal (para as barras secundárias)
 const lightenColor = (color, percent) => {
     const num = parseInt(color.slice(1), 16),
         amt = Math.round(2.55 * percent),
@@ -37,11 +34,10 @@ const lightenColor = (color, percent) => {
     return `#${(0x1000000 + (R < 255 ? R < 1 ? 0 : R : 255) * 0x10000 + (G < 255 ? G < 1 ? 0 : G : 255) * 0x100 + (B < 255 ? B < 1 ? 0 : B : 255)).toString(16).slice(1)}`;
 };
 
-// Função para obter a cor do gradiente para o Gauge
 const getGaugeColor = (value) => {
-    if (value < 40) return '#f44336'; // Vermelho
-    if (value < 70) return '#ff9800'; // Amarelo/Laranja
-    return '#4caf50'; // Verde
+    if (value < 40) return '#f44336'; // Red
+    if (value < 70) return '#ff9800'; // Yellow/Orange
+    return '#4caf50'; // Green
 };
 
 const styles = (theme) => ({
@@ -131,9 +127,6 @@ export const InsightsCharts = ({ frames }) => {
             return;
         }
 
-        // --- INÍCIO: Lógica de Cálculo ---
-
-        // 1. Inicialização de Agregadores
         const emotionStats = {};
         ALL_EMOTIONS.forEach(emotion => {
             emotionStats[emotion] = {
@@ -144,7 +137,6 @@ export const InsightsCharts = ({ frames }) => {
         });
         const frameCount = frames.length;
 
-        // 2. Inicialização do Rastreador de Duração (Streak)
         const maxStreaksInFrames = {};
         ALL_EMOTIONS.forEach(emotion => {
             maxStreaksInFrames[emotion] = 0;
@@ -153,7 +145,6 @@ export const InsightsCharts = ({ frames }) => {
         let currentStreakLength = 0;
         const FPS = 24;
 
-        // 3. Loop pelos Frames
         frames.forEach(frame => {
             let primaryEmotionThisFrame = null;
 
@@ -162,7 +153,6 @@ export const InsightsCharts = ({ frames }) => {
                     .map((emotion, index) => ({ emotion, confidence: frame.confidences[index] }))
                     .sort((a, b) => b.confidence - a.confidence);
 
-                // Cálculo de Frequência (Existente)
                 if (sortedEmotions.length > 0) {
                     const primary = sortedEmotions[0];
                     primaryEmotionThisFrame = primary.emotion;
@@ -175,7 +165,6 @@ export const InsightsCharts = ({ frames }) => {
                 }
             }
 
-            // Cálculo de Duração (Streak)
             if (primaryEmotionThisFrame === currentStreakEmotion) {
                 currentStreakLength++;
             } else {
@@ -189,14 +178,12 @@ export const InsightsCharts = ({ frames }) => {
             }
         });
 
-        // 4. Pós-Loop - Salva a última streak pendente
         if (currentStreakEmotion !== null) {
             if (currentStreakLength > maxStreaksInFrames[currentStreakEmotion]) {
                 maxStreaksInFrames[currentStreakEmotion] = currentStreakLength;
             }
         }
 
-        // 5. Pós-Loop - Processamento de dados
         const predominantEmotion = Object.keys(emotionStats).reduce((a, b) =>
             emotionStats[a].primaryCount > emotionStats[b].primaryCount ? a : b
         );
@@ -217,7 +204,6 @@ export const InsightsCharts = ({ frames }) => {
             return [primaryPercentage, secondaryPercentage];
         });
 
-        // Processamento dos dados de Duração para o gráfico
         const durationChartData = [];
         ALL_EMOTIONS.forEach(emotion => {
             if (maxStreaksInFrames[emotion] > 0) {
@@ -230,7 +216,6 @@ export const InsightsCharts = ({ frames }) => {
         });
         durationChartData.sort((a, b) => b.duration - a.duration);
 
-        // 6. Salva tudo no estado
         setChartData({
             frameCount,
             predominantEmotion,
@@ -245,21 +230,18 @@ export const InsightsCharts = ({ frames }) => {
         setIsLoading(false);
     }, [frames]);
 
-    // --- FIM: Lógica de Cálculo ---
-
     if (isLoading) {
         return (
             <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 400 }}>
-                <CircularProgress /> <Typography sx={{ ml: 2 }}>A analisar dados...</Typography>
+                <CircularProgress /> <Typography sx={{ ml: 2 }}>Analyzing data...</Typography>
             </Box>
         );
     }
 
     if (!chartData) {
-        return <Typography>Não há dados suficientes para exibir os insights.</Typography>;
+        return <Typography>There is not enough data to display insights.</Typography>;
     }
 
-    // Dados para o BarChart (Gráfico de Frequência - Existente)
     const barChartColors = ALL_EMOTIONS.flatMap((emotion, index) => [
         {
             angry: { primary: EMOTION_COLORS[EMOTION_MAP[emotion]], secondary: lightenColor(EMOTION_COLORS[EMOTION_MAP[emotion]], 20) },
@@ -281,7 +263,7 @@ export const InsightsCharts = ({ frames }) => {
                 data: ALL_EMOTIONS.map((_, i) =>
                     i === index ? parseFloat(primaryValue.toFixed(2)) : 0
                 ),
-                label: `Primária (${EMOTION_MAP[emotion]})`,
+                label: `Primary (${EMOTION_MAP[emotion]})`,
                 id: `pvId-${index}`,
                 yAxisId: 'leftAxisId',
                 color: EMOTION_COLORS[EMOTION_MAP[emotion]],
@@ -293,7 +275,7 @@ export const InsightsCharts = ({ frames }) => {
                 data: ALL_EMOTIONS.map((_, i) =>
                     i === index ? +secondaryValue.toFixed(2) : 0
                 ),
-                label: `Secundária (${EMOTION_MAP[emotion]})`,
+                label: `Secondary (${EMOTION_MAP[emotion]})`,
                 id: `uvId-${index}`,
                 yAxisId: 'leftAxisId',
                 color: lightenColor(EMOTION_COLORS[EMOTION_MAP[emotion]], 20),
@@ -304,7 +286,6 @@ export const InsightsCharts = ({ frames }) => {
         ];
     });
 
-    // Dados para o RadarChart (filtrando emoções com 0%)
     const radarMetrics = [];
     const radarPrimaryData = [];
     const radarSecondaryData = [];
@@ -320,7 +301,7 @@ export const InsightsCharts = ({ frames }) => {
     const radarSeries = [
         {
             data: radarPrimaryData,
-            label: 'Primária',
+            label: 'Primary',
             area: true,
             fillArea: true,
             color: 'rgba(76, 175, 80, 0.6)',
@@ -328,7 +309,7 @@ export const InsightsCharts = ({ frames }) => {
         },
         {
             data: radarSecondaryData,
-            label: 'Secundária',
+            label: 'Secondary',
             area: true,
             fillArea: true,
             color: 'rgba(255, 193, 7, 0.6)',
@@ -339,25 +320,22 @@ export const InsightsCharts = ({ frames }) => {
     return (
         <>
             <Box sx={componentStyles.kpiContainer}>
-                {/* KPI: Emoção Predominante */}
                 <Box sx={componentStyles.kpiItem}>
-                    <Typography variant="h6" sx={componentStyles.kpiTitle}>Emoção Predominante</Typography>
+                    <Typography variant="h6" sx={componentStyles.kpiTitle}>Predominant Emotion</Typography>
                     <Typography variant="h3" sx={{ ...componentStyles.kpiValue, color: EMOTION_COLORS[EMOTION_MAP[chartData.predominantEmotion]] }}>
                         {EMOTION_MAP[chartData.predominantEmotion]}
                     </Typography>
                 </Box>
 
-                {/* KPI: Imagens Analisadas */}
                 <Box sx={componentStyles.kpiItem}>
-                    <Typography variant="h6" sx={componentStyles.kpiTitle}>Imagens Analisadas</Typography>
+                    <Typography variant="h6" sx={componentStyles.kpiTitle}>Images Analyzed</Typography>
                     <Typography variant="h3" sx={componentStyles.kpiValue}>
                         {chartData.frameCount}
                     </Typography>
                 </Box>
 
-                {/* KPI: Confiabilidade com gradiente */}
                 <Box sx={componentStyles.kpiItem}>
-                    <Typography variant="h6" sx={componentStyles.kpiTitle}>Confiabilidade</Typography>
+                    <Typography variant="h6" sx={componentStyles.kpiTitle}>Confidence</Typography>
                     <Gauge
                         height={130}
                         value={Math.round(chartData.averageConfidence)}
@@ -379,7 +357,7 @@ export const InsightsCharts = ({ frames }) => {
 
             <Box sx={componentStyles.chartsContainer}>
                 <Box sx={componentStyles.mainChartContainer}>
-                    <Typography variant="h5" sx={{ ...componentStyles.chartTitle, mb: 6 }}>Frequência de <br />Emoções Detetadas</Typography>
+                    <Typography variant="h5" sx={{ ...componentStyles.chartTitle, mb: 6 }}>Frequency of <br />Detected Emotions</Typography>
                     <BarChart
                         height={500}
                         series={barSeries}
@@ -400,12 +378,10 @@ export const InsightsCharts = ({ frames }) => {
                     />
                 </Box>
 
-                {/* Container Lateral (Radar + Novo Gráfico) */}
                 <Box sx={componentStyles.sideContainer}>
 
-                    {/* Gráfico de Radar (Existente) */}
                     <Box sx={componentStyles.sideChartContainer}>
-                        <Typography variant="h6" sx={componentStyles.chartTitle}>Radar de Frequência</Typography>
+                        <Typography variant="h6" sx={componentStyles.chartTitle}>Frequency Radar</Typography>
                         {radarPrimaryData.length > 0 ? (
                             <RadarChart
                                 series={radarSeries}
@@ -422,38 +398,32 @@ export const InsightsCharts = ({ frames }) => {
                                 />
                             </RadarChart>
                         ) : (
-                            <Typography>Sem dados para o radar.</Typography>
+                            <Typography>No data for the radar.</Typography>
                         )}
                     </Box>
 
-                    {/* --- INÍCIO: GRÁFICO ALTERADO (Vertical) --- */}
                     <Box sx={componentStyles.sideChartContainer}>
                         <Typography variant="h6" sx={componentStyles.chartTitle}>
-                            Pico de Duração (Segundos)
+                            Peak Duration (Seconds)
                         </Typography>
                         {chartData.durationChart && chartData.durationChart.labels.length > 0 ? (
                             <BarChart
-                                // layout="horizontal" // REMOVIDO para ser vertical
-
-                                // Eixo X (Categorias) - Era o yAxis
                                 xAxis={[{
                                     data: chartData.durationChart.labels,
                                     scaleType: 'band',
-                                    id: 'x-axis-id' // ID alterado
+                                    id: 'x-axis-id' 
                                 }
                                 ]}
 
-                                // Eixo Y (Valores) - Era o xAxis
                                 yAxis={[{
-                                    id: 'y-axis-id', // ID alterado
-                                    label: 'Segundos'
+                                    id: 'y-axis-id', 
+                                    label: 'Seconds'
                                 }]}
 
-                                // Dados
                                 series={[{
                                     data: chartData.durationChart.data,
-                                    xAxisId: 'x-axis-id', // ID alterado
-                                    yAxisId: 'y-axis-id', // ID alterado
+                                    xAxisId: 'x-axis-id', 
+                                    yAxisId: 'y-axis-id', 
                                     valueFormatter: (value) => value ? `${value.toFixed(1)}s` : '0s',
                                 }]}
                                 
@@ -463,10 +433,9 @@ export const InsightsCharts = ({ frames }) => {
                                 hideLegend={true}
                             />
                         ) : (
-                            <Typography>Sem dados de duração para exibir.</Typography>
+                            <Typography>No duration data to display.</Typography>
                         )}
                     </Box>
-                    {/* --- FIM: GRÁFICO ALTERADO --- */}
 
                 </Box>
             </Box>

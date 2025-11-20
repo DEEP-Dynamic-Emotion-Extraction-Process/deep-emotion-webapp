@@ -46,19 +46,16 @@ server {
 }
 EOF
 
-# Ativa a nova configuração
 if [ ! -L "/etc/nginx/sites-enabled/$PROJECT_NAME" ]; then
     echo "Ativando o site..."
     sudo ln -s "$NGINX_CONFIG_FILE" /etc/nginx/sites-enabled/
 fi
 
-# Remove a configuração padrão do Nginx
 if [ -L "/etc/nginx/sites-enabled/default" ]; then
     echo "Removendo a configuração padrão do Nginx..."
     sudo rm /etc/nginx/sites-enabled/default
 fi
 
-# Testa a sintaxe da configuração do Nginx
 if sudo nginx -t; then
     echo "Configuração do Nginx válida. A reiniciar o serviço..."
     sudo systemctl restart nginx

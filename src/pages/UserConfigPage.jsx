@@ -2,33 +2,29 @@
 import { Container, Typography, Box, Paper, Divider, Button, TextField } from '@mui/material';
 import { useAuth } from '../hooks/useAuth';
 
-/**
- * Página para o utilizador visualizar e gerir as suas informações de conta.
- */
 export const UserConfigPage = () => {
-  const { user } = useAuth(); // Obtém os dados do utilizador a partir do nosso contexto
-
+  const { user } = useAuth();
+  
   return (
     <Container maxWidth="md">
       <Box sx={{ my: 4 }}>
         <Typography variant="h4" component="h1" gutterBottom>
-          Configurações da Conta
+          Account Settings
         </Typography>
 
-        {/* Secção de Informações do Perfil */}
         <Paper sx={{ p: 3, mt: 2, mb: 4 }}>
           <Typography variant="h6" gutterBottom>
-            Informações do Perfil
+            Profile Information
           </Typography>
           {user ? (
             <Box sx={{ mt: 2 }}>
               <TextField
-                label="Nome de Utilizador"
+                label="Username"
                 value={user.username}
                 fullWidth
                 margin="normal"
                 InputProps={{
-                  readOnly: true, // Apenas para leitura
+                  readOnly: true, 
                 }}
                 variant="filled"
               />
@@ -43,7 +39,7 @@ export const UserConfigPage = () => {
                 variant="filled"
               />
                <TextField
-                label="ID do Utilizador"
+                label="User ID"
                 value={user.id}
                 fullWidth
                 margin="normal"
@@ -54,25 +50,24 @@ export const UserConfigPage = () => {
               />
             </Box>
           ) : (
-            <Typography>A carregar informações...</Typography>
+            <Typography>Loading information...</Typography>
           )}
         </Paper>
 
-        {/* Secção para Futuras Ações */}
         <Paper sx={{ p: 3 }}>
            <Typography variant="h6" gutterBottom>
-            Ações da Conta
+            Account Management
           </Typography>
           <Divider sx={{my: 2}} />
           <Box sx={{mt: 2, display: 'flex', flexDirection: 'column', gap: 2, alignItems: 'flex-start'}}>
              <Typography color="text.secondary">
-                Funcionalidades como alterar a senha ou apagar a conta podem ser adicionadas aqui.
+                Features like changing the password or deleting the account can be added here.
              </Typography>
              <Button variant="outlined" color="secondary" disabled>
-                Alterar Senha
+                Change Password
              </Button>
              <Button variant="contained" color="error" disabled>
-                Apagar Conta
+                Delete Account
              </Button>
           </Box>
         </Paper>

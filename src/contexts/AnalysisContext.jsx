@@ -20,7 +20,7 @@ export const AnalysisProvider = ({ children }) => {
       const userVideos = await getUserVideos();
       setAnalyses(userVideos);
     } catch (err) {
-      setError('Não foi possível carregar as análises.');
+      setError('Failed to load analyses. Please try again later.');
     } finally {
       setIsLoading(false);
     }
@@ -81,7 +81,7 @@ export const AnalysisProvider = ({ children }) => {
 export const useAnalyses = () => {
   const context = useContext(AnalysisContext);
   if (!context) {
-    throw new Error('useAnalyses deve ser usado dentro de um AnalysisProvider');
+    throw new Error('useAnalyses must be used within an AnalysisProvider');
   }
   return context;
 };

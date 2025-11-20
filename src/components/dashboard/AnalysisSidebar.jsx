@@ -5,16 +5,13 @@ import { Link } from 'react-router-dom';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import SettingsIcon from '@mui/icons-material/Settings';
 
-import { useAnalyses } from '../../contexts/AnalysisContext'; // Verifique se o nome está correto
+import { useAnalyses } from '../../contexts/AnalysisContext'; 
 import { AnalysisCard } from './AnalysisCard';
 
 const drawerWidth = 280;
 
 export const AnalysisSidebar = () => {
-  // Use o hook para obter o estado partilhado
   const { analyses, isLoading, error } = useAnalyses();
-
-  // A lógica de useEffect para buscar dados foi movida para o contexto
 
   let content;
   if (isLoading) {
@@ -54,7 +51,7 @@ export const AnalysisSidebar = () => {
           component={Link}
           to="/dashboard"
         >
-          Nova Análise
+          New Analysis
         </Button>
       </Box>
       <Divider />
@@ -67,7 +64,7 @@ export const AnalysisSidebar = () => {
             <ListItem disablePadding>
                 <ListItemButton component={Link} to="/settings">
                     <ListItemIcon><SettingsIcon /></ListItemIcon>
-                    <ListItemText primary="Configurações" />
+                    <ListItemText primary="Settings" />
                 </ListItemButton>
             </ListItem>
         </List>

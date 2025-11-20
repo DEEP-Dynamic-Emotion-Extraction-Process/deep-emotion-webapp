@@ -27,7 +27,7 @@ export const AnalysisDetailPage = () => {
       const data = await getVideoDetails(analysisId);
       setAnalysis(data);
     } catch (err) {
-      setError('Não foi possível carregar os detalhes desta análise.');
+      setError('Failes to load analysis details. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -40,7 +40,7 @@ export const AnalysisDetailPage = () => {
 
   useEffect(() => {
     if (justCompletedId === analysisId) {
-      console.log(`Análise ${analysisId} concluída. A atualizar dados...`);
+      console.log(`Analysis ${analysisId} completed. Updating data...`);
       fetchDetails(); 
       setJustCompletedId(null); 
     }
@@ -62,7 +62,7 @@ export const AnalysisDetailPage = () => {
       await updateVideoDetails(analysis.id, { title: newTitle });
       updateAnalysisTitle(analysis.id, newTitle);
     } catch (err) {
-      console.error("Falha ao atualizar o título", err);
+      console.error("Failed to update the title", err);
       setAnalysis({ ...analysis, title: oldTitle });
     }
   };
@@ -96,7 +96,7 @@ export const AnalysisDetailPage = () => {
             </Paper>
             <Paper>
               <Box sx={{ p: 2 }}>
-                <Typography variant="h6">Linha do Tempo das Emoções</Typography>
+                <Typography variant="h6">Emotion Timeline</Typography>
                 <Box sx={{ mt: 2 }}>
                   <EmotionTimeline
                     frames={analysis.frames}
@@ -111,7 +111,7 @@ export const AnalysisDetailPage = () => {
           <Grid sx={{ width: '100%', maxWidth: '960px' }}>
             <Paper>
               <Box sx={{ p: 2 }}>
-                <Typography variant="h6">Insights da Análise</Typography>
+                <Typography variant="h6">Analysis Insights</Typography>
                 <InsightsCharts frames={analysis.frames} />
               </Box>
             </Paper>

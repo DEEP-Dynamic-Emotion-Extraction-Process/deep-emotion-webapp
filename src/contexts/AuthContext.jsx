@@ -3,16 +3,13 @@ import React, { createContext, useState, useEffect, useContext } from 'react';
 import { getProfile } from '../api/authService';
 import apiClient from '../api/api';
 
-// 1. Cria o Contexto
 const AuthContext = createContext(null);
 
-// 2. Cria o Provedor (Provider)
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true); // Começa carregando
 
   useEffect(() => {
-    // Função para verificar se existe um token válido no carregamento da página
     const validateToken = async () => {
       const token = localStorage.getItem('access_token');
       if (token) {
@@ -21,7 +18,7 @@ export const AuthProvider = ({ children }) => {
           const userData = await getProfile();
           setUser(userData);
         } catch (error) {
-          console.error("Token inválido ou expirado. Limpando...");
+          console.error("Invalid or expired token. Clearing...");
           localStorage.removeItem('access_token');
         }
       }
@@ -29,7 +26,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     validateToken();
-  }, []); // O array vazio [] garante que isso rode apenas uma vez
+  }, []); 
 
   const loginAction = async (token) => {
     localStorage.setItem('access_token', token);
@@ -59,11 +56,10 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-// 3. Cria o Hook customizado para consumir o contexto
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth deve ser usado dentro de um AuthProvider');
+    throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
 };

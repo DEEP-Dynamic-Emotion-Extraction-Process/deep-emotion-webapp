@@ -2,10 +2,6 @@
 import { Container, Typography, Box, Button } from '@mui/material';
 import { Link } from 'react-router-dom';
 
-/**
- * A página inicial (landing page) da aplicação.
- * Serve como uma introdução ao projeto e um ponto de entrada para os utilizadores.
- */
 export const HomePage = () => {
   return (
     <Container maxWidth="md">
@@ -17,7 +13,7 @@ export const HomePage = () => {
           justifyContent: 'center',
           alignItems: 'center',
           textAlign: 'center',
-          minHeight: 'calc(100vh - 128px)', // Ocupa a altura da tela menos a navbar
+          minHeight: 'calc(100vh - 128px)', 
         }}
       >
         <Typography 
@@ -31,7 +27,7 @@ export const HomePage = () => {
             WebkitTextFillColor: 'transparent',
           }}
         >
-          Bem-vindo ao DeepEmotion
+          Welcome to DeepEmotion
         </Typography>
 
         <Typography 
@@ -40,7 +36,7 @@ export const HomePage = () => {
           paragraph 
           sx={{ maxWidth: '600px' }}
         >
-          A sua plataforma inteligente para extrair e visualizar emoções de vídeos de forma dinâmica e intuitiva.
+          Your intelligent platform to extract and visualize emotions from videos in a dynamic and intuitive way.
         </Typography>
         
         <Box sx={{ mt: 4 }}>
@@ -51,7 +47,7 @@ export const HomePage = () => {
             to="/register" 
             size="large"
           >
-            Comece Agora
+            Get Started
           </Button>
         </Box>
       </Box>

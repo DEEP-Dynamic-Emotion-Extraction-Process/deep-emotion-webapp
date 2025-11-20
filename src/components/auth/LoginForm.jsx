@@ -20,7 +20,7 @@ export const LoginForm = () => {
       await auth.login(data.access_token);
       navigate('/dashboard');
     } catch (err) {
-      const errorMsg = err.response?.data?.error || 'Falha no login. Verifique suas credenciais.';
+      const errorMsg = err.response?.data?.error || 'Login failed. Please try again.';
       setError(errorMsg);
     }
   };
@@ -32,7 +32,7 @@ export const LoginForm = () => {
         required
         fullWidth
         id="email"
-        label="Endereço de Email"
+        label="Email Address"
         name="email"
         autoComplete="email"
         autoFocus
@@ -44,7 +44,7 @@ export const LoginForm = () => {
         required
         fullWidth
         name="password"
-        label="Senha"
+        label="Password"
         type="password"
         id="password"
         autoComplete="current-password"
@@ -58,7 +58,7 @@ export const LoginForm = () => {
         variant="contained"
         sx={{ mt: 3, mb: 2 }}
       >
-        Entrar
+        Login
       </Button>
     </Box>
   );

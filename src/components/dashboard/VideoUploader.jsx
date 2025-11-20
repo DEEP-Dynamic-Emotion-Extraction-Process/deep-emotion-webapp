@@ -34,32 +34,32 @@ export const VideoUploader = () => {
 
   const handleUpload = async () => {
     if (!file || !title) {
-      setStatus({ message: 'Por favor, selecione um ficheiro e forneça um título.', type: 'error' });
+      setStatus({ message: 'Please select a file and provide a title.', type: 'error' });
       return;
     }
 
     setIsUploading(true);
-    setStatus({ message: 'A iniciar upload...', type: 'info' });
+    setStatus({ message: 'Starting upload...', type: 'info' });
 
     try {
       const analysisResult = await uploadVideo(file, title, (progressEvent) => {
         const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
         setUploadProgress(percent);
         if (percent < 100) {
-            setStatus({ message: `A enviar... ${percent}%`, type: 'info' });
+            setStatus({ message: `Uploading... ${percent}%`, type: 'info' });
         } else {
-            setStatus({ message: 'Upload concluído! A solicitar análise...', type: 'info' });
+            setStatus({ message: 'Upload completed! Requesting analysis...', type: 'info' });
         }
       });
 
       addAnalysis(analysisResult);
 
-      setStatus({ message: 'Análise iniciada com sucesso!', type: 'success' });
+      setStatus({ message: 'Analysis started successfully!', type: 'success' });
       navigate(`/dashboard/analysis/${analysisResult.id}`);
 
     } catch (error) {
-      console.error("Erro no processo de upload:", error);
-      const errorMsg = error.response?.data?.error || 'Ocorreu um erro inesperado.';
+      console.error("Error during upload process:", error);
+      const errorMsg = error.response?.data?.error || 'An unexpected error occurred.';
       setStatus({ message: errorMsg, type: 'error' });
       setIsUploading(false);
     } finally {
@@ -83,7 +83,7 @@ export const VideoUploader = () => {
         <label htmlFor="video-upload-button">
           <Input accept="video/*" id="video-upload-button" type="file" onChange={handleFileChange} disabled={isUploading} />
           <Button variant="outlined" component="span" startIcon={<CloudUploadIcon />} disabled={isUploading}>
-            {file ? 'Trocar Vídeo' : 'Selecionar Vídeo'}
+            {file ? 'Change Video' : 'Select Video'}
           </Button>
         </label>
 
@@ -92,14 +92,14 @@ export const VideoUploader = () => {
             <Typography variant="body2">Ficheiro selecionado: <strong>{file.name}</strong></Typography>
             <TextField
               fullWidth
-              label="Título da Análise"
+              label="Analysis Title"
               variant="outlined"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               disabled={isUploading}
             />
             <Button onClick={handleUpload} variant="contained" size="large" disabled={isUploading}>
-              {isUploading ? 'A processar...' : 'Analisar'}
+              {isUploading ? 'Processing...' : 'Analyzed'}
             </Button>
           </>
         )}

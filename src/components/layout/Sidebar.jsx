@@ -11,8 +11,8 @@ export const Sidebar = () => {
   const location = useLocation();
 
   const navItems = [
-    { text: 'Nova Análise', icon: <DashboardIcon />, path: '/dashboard' },
-    { text: 'Minhas Análises', icon: <VideoLibraryIcon />, path: '/dashboard/analyses' }, // Exemplo de outra rota
+    { text: 'New Analysis', icon: <DashboardIcon />, path: '/dashboard' },
+    { text: 'My Analyses', icon: <VideoLibraryIcon />, path: '/dashboard/analyses' }, 
   ];
 
   return (
@@ -41,7 +41,7 @@ export const Sidebar = () => {
            <ListItem disablePadding>
               <ListItemButton component={Link} to="/settings" selected={location.pathname === '/settings'}>
                 <ListItemIcon><SettingsIcon /></ListItemIcon>
-                <ListItemText primary="Configurações" />
+                <ListItemText primary="Settings" />
               </ListItemButton>
             </ListItem>
         </List>

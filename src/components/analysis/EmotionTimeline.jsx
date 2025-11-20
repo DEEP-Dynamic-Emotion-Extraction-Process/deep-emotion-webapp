@@ -57,8 +57,6 @@ export const EmotionTimeline = ({ frames, duration, onSeek }) => {
         }}
       >
         {frames.map((frame, index) => {
-          // --- LÓGICA ATUALIZADA ---
-          // Encontra a emoção dominante para este frame
           let dominantEmotion = 'DEFAULT';
           if (frame.emotions && frame.confidences) {
             let maxConfidence = -1;
