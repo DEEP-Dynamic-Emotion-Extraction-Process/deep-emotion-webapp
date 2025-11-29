@@ -1,5 +1,5 @@
 // src/pages/AnalysisDetailPage.jsx
-import React, { useState, useEffect, useRef, useCallback } from 'react'; // Adicione useCallback
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { Container, Typography, Box, Paper, Alert, Grid, Divider } from '@mui/material';
 
@@ -10,8 +10,10 @@ import { EmotionTimeline } from '../components/analysis/EmotionTimeline';
 import { InsightsCharts } from '../components/analysis/InsightsCharts';
 import { EditableTitle } from '../components/analysis/EditableTitle';
 import { useAnalyses } from '../contexts/AnalysisContext';
+import { useTranslation } from 'react-i18next';
 
 export const AnalysisDetailPage = () => {
+  const { t } = useTranslation();
   const { analysisId } = useParams();
   const [analysis, setAnalysis] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -96,7 +98,7 @@ export const AnalysisDetailPage = () => {
             </Paper>
             <Paper>
               <Box sx={{ p: 2 }}>
-                <Typography variant="h6">Emotion Timeline</Typography>
+                <Typography variant="h6">{t('analysis.timelineTitle')}</Typography>
                 <Box sx={{ mt: 2 }}>
                   <EmotionTimeline
                     frames={analysis.frames}
@@ -111,7 +113,7 @@ export const AnalysisDetailPage = () => {
           <Grid sx={{ width: '100%', maxWidth: '960px' }}>
             <Paper>
               <Box sx={{ p: 2 }}>
-                <Typography variant="h6">Analysis Insights</Typography>
+                <Typography variant="h6">{t('analysis.insightsTitle')}</Typography>
                 <InsightsCharts frames={analysis.frames} />
               </Box>
             </Paper>

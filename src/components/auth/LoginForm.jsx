@@ -4,8 +4,11 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { login } from '../../api/authService';
 import { TextField, Button, Box, Alert } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 
 export const LoginForm = () => {
+  const { t } = useTranslation();
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -32,7 +35,7 @@ export const LoginForm = () => {
         required
         fullWidth
         id="email"
-        label="Email Address"
+        label={t('auth.email')}
         name="email"
         autoComplete="email"
         autoFocus
@@ -44,7 +47,7 @@ export const LoginForm = () => {
         required
         fullWidth
         name="password"
-        label="Password"
+        label={t('auth.password')}
         type="password"
         id="password"
         autoComplete="current-password"
@@ -58,7 +61,7 @@ export const LoginForm = () => {
         variant="contained"
         sx={{ mt: 3, mb: 2 }}
       >
-        Login
+        {t('auth.loginButton')}
       </Button>
     </Box>
   );

@@ -1,0 +1,74 @@
+{
+  "app": {
+    "title": "DeepEmotion",
+    "dashboard": "Painel",
+    "newAnalysis": "Nova Análise",
+    "myAnalyses": "Minhas Análises",
+    "settings": "Configurações",
+    "login": "Entrar",
+    "register": "Cadastro",
+    "logout": "Sair",
+    "changeLanguage": "Idioma"
+  },
+  "home": {
+    "welcome": "Bem-vindo ao DeepEmotion",
+    "subtitle": "A sua plataforma inteligente para extrair e visualizar emoções de vídeos de forma dinâmica e intuitiva.",
+    "getStarted": "Começar Agora"
+  },
+  "auth": {
+    "createAccount": "Criar uma Conta",
+    "fullName": "Nome Completo",
+    "email": "Endereço de Email",
+    "password": "Senha",
+    "registerButton": "Registrar",
+    "loginButton": "Entrar",
+    "failed": "Falha na operação. Tente novamente."
+  },
+  "upload": {
+    "title": "Enviar Novo Vídeo para Análise",
+    "subtitle": "Selecione um arquivo de vídeo (até 30s) e forneça um título.",
+    "selectVideo": "Selecionar Vídeo",
+    "changeVideo": "Alterar Vídeo",
+    "selectedFile": "Arquivo selecionado",
+    "inputLabel": "Título da Análise",
+    "buttonProcessing": "Processando...",
+    "buttonAnalyze": "Analisar",
+    "statusUploading": "Enviando...",
+    "statusCompleted": "Envio completo! Solicitando análise...",
+    "statusSuccess": "Análise iniciada com sucesso!",
+    "errorMissing": "Por favor selecione um arquivo e forneça um título."
+  },
+  "analysis": {
+    "timelineTitle": "Linha do Tempo das Emoções",
+    "insightsTitle": "Insights da Análise",
+    "notFound": "Análise não encontrada.",
+    "loadingDetails": "Carregando detalhes..."
+  },
+  "status": {
+    "COMPLETED": "Concluído",
+    "PROCESSING": "Processando",
+    "PENDING": "Pendente",
+    "FAILED": "Falhou"
+  },
+  "emotions": {
+    "angry": "Raiva",
+    "disgust": "Nojo",
+    "fear": "Medo",
+    "happy": "Felicidade",
+    "neutral": "Neutro",
+    "sad": "Tristeza",
+    "surprised": "Surpresa"
+  },
+  "charts": {
+    "predominant": "Emoção Predominante",
+    "analyzedImages": "Imagens Analisadas",
+    "confidence": "Confiança",
+    "frequencyTitle": "Frequência das Emoções",
+    "radarTitle": "Radar de Frequência",
+    "durationTitle": "Duração de Pico (Segundos)",
+    "analyzing": "Analisando dados...",
+    "noData": "Não há dados suficientes para exibir insights.",
+    "primary": "Primária",
+    "secondary": "Secundária"
+  }
+}

@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Typography, CircularProgress, useTheme } from '@mui/material';
 import { BarChart, Gauge, RadarChart, RadarAxis } from '@mui/x-charts';
+import { useTranslation } from 'react-i18next';
 
 const ALL_EMOTIONS = ['angry', 'disgust', 'fear', 'happy', 'neutral', 'sad', 'surprised'];
 
@@ -114,12 +115,16 @@ const styles = (theme) => ({
 });
 
 export const InsightsCharts = ({ frames }) => {
+    const { t } = useTranslation();
+    
     const theme = useTheme();
     const componentStyles = styles(theme);
-
+    
     const [chartData, setChartData] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
-
+    
+    const getEmotionLabel = (emotionKey) => t(`emotions.${emotionKey.toLowerCase()}`);
+    
     useEffect(() => {
         if (!frames || frames.length === 0) {
             setIsLoading(false);
@@ -222,7 +227,7 @@ export const InsightsCharts = ({ frames }) => {
             averageConfidence: totalAverage,
             emotionPercentages,
             durationChart: {
-                labels: durationChartData.map(d => d.emotion),
+                labels: durationChartData.map(d => t(`emotions.${d.emotion.toLowerCase()}`)),
                 data: durationChartData.map(d => d.duration),
                 colors: durationChartData.map(d => d.color)
             }
@@ -233,26 +238,14 @@ export const InsightsCharts = ({ frames }) => {
     if (isLoading) {
         return (
             <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 400 }}>
-                <CircularProgress /> <Typography sx={{ ml: 2 }}>Analyzing data...</Typography>
+                <CircularProgress /> <Typography sx={{ ml: 2 }}>{t('charts.analyzingData')}</Typography>
             </Box>
         );
     }
 
     if (!chartData) {
-        return <Typography>There is not enough data to display insights.</Typography>;
+        return <Typography>{t('charts.noData')}</Typography>;
     }
-
-    const barChartColors = ALL_EMOTIONS.flatMap((emotion, index) => [
-        {
-            angry: { primary: EMOTION_COLORS[EMOTION_MAP[emotion]], secondary: lightenColor(EMOTION_COLORS[EMOTION_MAP[emotion]], 20) },
-            disgust: { primary: EMOTION_COLORS[EMOTION_MAP[emotion]], secondary: lightenColor(EMOTION_COLORS[EMOTION_MAP[emotion]], 20) },
-            fear: { primary: EMOTION_COLORS[EMOTION_MAP[emotion]], secondary: lightenColor(EMOTION_COLORS[EMOTION_MAP[emotion]], 20) },
-            happy: { primary: EMOTION_COLORS[EMOTION_MAP[emotion]], secondary: lightenColor(EMOTION_COLORS[EMOTION_MAP[emotion]], 20) },
-            neutral: { primary: EMOTION_COLORS[EMOTION_MAP[emotion]], secondary: lightenColor(EMOTION_COLORS[EMOTION_MAP[emotion]], 20) },
-            sad: { primary: EMOTION_COLORS[EMOTION_MAP[emotion]], secondary: lightenColor(EMOTION_COLORS[EMOTION_MAP[emotion]], 20) },
-            surprised: { primary: EMOTION_COLORS[EMOTION_MAP[emotion]], secondary: lightenColor(EMOTION_COLORS[EMOTION_MAP[emotion]], 20) },
-        }
-    ])
 
     const barSeries = ALL_EMOTIONS.flatMap((emotion, index) => {
         const primaryValue = chartData.emotionPercentages[index][0] || 0;
@@ -263,7 +256,7 @@ export const InsightsCharts = ({ frames }) => {
                 data: ALL_EMOTIONS.map((_, i) =>
                     i === index ? parseFloat(primaryValue.toFixed(2)) : 0
                 ),
-                label: `Primary (${EMOTION_MAP[emotion]})`,
+                label: `${t('charts.primary')} (${getEmotionLabel(emotion)})`,
                 id: `pvId-${index}`,
                 yAxisId: 'leftAxisId',
                 color: EMOTION_COLORS[EMOTION_MAP[emotion]],
@@ -275,7 +268,7 @@ export const InsightsCharts = ({ frames }) => {
                 data: ALL_EMOTIONS.map((_, i) =>
                     i === index ? +secondaryValue.toFixed(2) : 0
                 ),
-                label: `Secondary (${EMOTION_MAP[emotion]})`,
+                label: `${t('charts.secondary')} (${getEmotionLabel(emotion)})`,
                 id: `uvId-${index}`,
                 yAxisId: 'leftAxisId',
                 color: lightenColor(EMOTION_COLORS[EMOTION_MAP[emotion]], 20),
@@ -292,7 +285,7 @@ export const InsightsCharts = ({ frames }) => {
 
     chartData.emotionPercentages.forEach(([primary, secondary], index) => {
         if (primary > 0 || secondary > 0) {
-            radarMetrics.push(EMOTION_MAP[ALL_EMOTIONS[index]]);
+            radarMetrics.push(t(`emotions.${ALL_EMOTIONS[index].toLowerCase()}`));
             radarPrimaryData.push(parseFloat(primary.toFixed(2)));
             radarSecondaryData.push(parseFloat(secondary.toFixed(2)));
         }
@@ -301,7 +294,7 @@ export const InsightsCharts = ({ frames }) => {
     const radarSeries = [
         {
             data: radarPrimaryData,
-            label: 'Primary',
+            label: t('charts.primary'),
             area: true,
             fillArea: true,
             color: 'rgba(76, 175, 80, 0.6)',
@@ -309,7 +302,7 @@ export const InsightsCharts = ({ frames }) => {
         },
         {
             data: radarSecondaryData,
-            label: 'Secondary',
+            label: t('charts.secondary'),
             area: true,
             fillArea: true,
             color: 'rgba(255, 193, 7, 0.6)',
@@ -321,21 +314,21 @@ export const InsightsCharts = ({ frames }) => {
         <>
             <Box sx={componentStyles.kpiContainer}>
                 <Box sx={componentStyles.kpiItem}>
-                    <Typography variant="h6" sx={componentStyles.kpiTitle}>Predominant Emotion</Typography>
+                    <Typography variant="h6" sx={componentStyles.kpiTitle}>{t('charts.predominant')}</Typography>
                     <Typography variant="h3" sx={{ ...componentStyles.kpiValue, color: EMOTION_COLORS[EMOTION_MAP[chartData.predominantEmotion]] }}>
-                        {EMOTION_MAP[chartData.predominantEmotion]}
+                        {t(`emotions.${chartData.predominantEmotion.toLowerCase()}`)}
                     </Typography>
                 </Box>
 
                 <Box sx={componentStyles.kpiItem}>
-                    <Typography variant="h6" sx={componentStyles.kpiTitle}>Images Analyzed</Typography>
+                    <Typography variant="h6" sx={componentStyles.kpiTitle}>{t('charts.analyzedImages')}</Typography>
                     <Typography variant="h3" sx={componentStyles.kpiValue}>
                         {chartData.frameCount}
                     </Typography>
                 </Box>
 
                 <Box sx={componentStyles.kpiItem}>
-                    <Typography variant="h6" sx={componentStyles.kpiTitle}>Confidence</Typography>
+                    <Typography variant="h6" sx={componentStyles.kpiTitle}>{t('charts.confidence')}</Typography>
                     <Gauge
                         height={130}
                         value={Math.round(chartData.averageConfidence)}
@@ -357,11 +350,11 @@ export const InsightsCharts = ({ frames }) => {
 
             <Box sx={componentStyles.chartsContainer}>
                 <Box sx={componentStyles.mainChartContainer}>
-                    <Typography variant="h5" sx={{ ...componentStyles.chartTitle, mb: 6 }}>Frequency of <br />Detected Emotions</Typography>
+                    <Typography variant="h5" sx={{ ...componentStyles.chartTitle, mb: 6 }}>{t('charts.frequencyTitle')}</Typography>
                     <BarChart
                         height={500}
                         series={barSeries}
-                        xAxis={[{ data: ALL_EMOTIONS.map(e => EMOTION_MAP[e]), id: 'x-axis-id', scaleType: 'band' }]}
+                        xAxis={[{ data: ALL_EMOTIONS.map(e => t(`emotions.${e.toLowerCase()}`)), id: 'x-axis-id', scaleType: 'band' }]}
                         yAxis={[
                             { max: 100, min: 0 },
                             { id: 'leftAxisId' },
@@ -381,7 +374,7 @@ export const InsightsCharts = ({ frames }) => {
                 <Box sx={componentStyles.sideContainer}>
 
                     <Box sx={componentStyles.sideChartContainer}>
-                        <Typography variant="h6" sx={componentStyles.chartTitle}>Frequency Radar</Typography>
+                        <Typography variant="h6" sx={componentStyles.chartTitle}>{t('charts.radarTitle')}</Typography>
                         {radarPrimaryData.length > 0 ? (
                             <RadarChart
                                 series={radarSeries}
@@ -389,22 +382,15 @@ export const InsightsCharts = ({ frames }) => {
                                 radar={{ max: 100, metrics: radarMetrics }}
                                 sx={componentStyles.chartStyling}
                             >
-                                <RadarAxis
-                                    metric={radarMetrics[0]}
-                                    divisions={4}
-                                    labelOrientation="horizontal"
-                                    textAnchor="start"
-                                    angle="30"
-                                />
                             </RadarChart>
                         ) : (
-                            <Typography>No data for the radar.</Typography>
+                            <Typography>{t('charts.noData')}</Typography>
                         )}
                     </Box>
 
                     <Box sx={componentStyles.sideChartContainer}>
                         <Typography variant="h6" sx={componentStyles.chartTitle}>
-                            Peak Duration (Seconds)
+                            {t('charts.durationTitle')}
                         </Typography>
                         {chartData.durationChart && chartData.durationChart.labels.length > 0 ? (
                             <BarChart
@@ -433,7 +419,7 @@ export const InsightsCharts = ({ frames }) => {
                                 hideLegend={true}
                             />
                         ) : (
-                            <Typography>No duration data to display.</Typography>
+                            <Typography>{t('charts.noData')}</Typography>
                         )}
                     </Box>
 

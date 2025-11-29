@@ -1,8 +1,11 @@
 // src/pages/HomePage.jsx
 import { Container, Typography, Box, Button } from '@mui/material';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 export const HomePage = () => {
+  const { t } = useTranslation();
+
   return (
     <Container maxWidth="md">
       <Box
@@ -27,7 +30,7 @@ export const HomePage = () => {
             WebkitTextFillColor: 'transparent',
           }}
         >
-          Welcome to DeepEmotion
+          {t('home.welcome')}
         </Typography>
 
         <Typography 
@@ -36,7 +39,7 @@ export const HomePage = () => {
           paragraph 
           sx={{ maxWidth: '600px' }}
         >
-          Your intelligent platform to extract and visualize emotions from videos in a dynamic and intuitive way.
+          {t('home.subtitle')}
         </Typography>
         
         <Box sx={{ mt: 4 }}>
@@ -47,7 +50,7 @@ export const HomePage = () => {
             to="/register" 
             size="large"
           >
-            Get Started
+            {t('home.getStarted')}
           </Button>
         </Box>
       </Box>

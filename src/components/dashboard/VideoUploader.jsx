@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Paper, Typography, Box, Button, LinearProgress, Alert, TextField } from '@mui/material';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { styled } from '@mui/material/styles';
+import { useTranslation } from 'react-i18next';
 
 import { uploadVideo } from '../../api/videoService';
 import { useAnalyses } from '../../contexts/AnalysisContext';
@@ -13,6 +14,8 @@ const Input = styled('input')({
 });
 
 export const VideoUploader = () => {
+  const { t } = useTranslation();
+
   const [file, setFile] = useState(null);
   const [title, setTitle] = useState('');
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -34,27 +37,27 @@ export const VideoUploader = () => {
 
   const handleUpload = async () => {
     if (!file || !title) {
-      setStatus({ message: 'Please select a file and provide a title.', type: 'error' });
+      setStatus({ message: t('upload.errorMissing'), type: 'error' });
       return;
     }
 
     setIsUploading(true);
-    setStatus({ message: 'Starting upload...', type: 'info' });
+    setStatus({ message: t('upload.statusUploading'), type: 'info' });
 
     try {
       const analysisResult = await uploadVideo(file, title, (progressEvent) => {
         const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
         setUploadProgress(percent);
         if (percent < 100) {
-            setStatus({ message: `Uploading... ${percent}%`, type: 'info' });
+            setStatus({ message: t('upload.statusUploading', { percent }), type: 'info' });
         } else {
-            setStatus({ message: 'Upload completed! Requesting analysis...', type: 'info' });
+            setStatus({ message: t('upload.statusCompleted'), type: 'info' });
         }
       });
 
       addAnalysis(analysisResult);
 
-      setStatus({ message: 'Analysis started successfully!', type: 'success' });
+      setStatus({ message: t('upload.statusSuccess'), type: 'success' });
       navigate(`/dashboard/analysis/${analysisResult.id}`);
 
     } catch (error) {
@@ -73,33 +76,33 @@ export const VideoUploader = () => {
   return (
     <Paper elevation={3} sx={{ p: 4 }}>
       <Typography variant="h5" component="h2" gutterBottom>
-        Upload a New Video for Analysis
+        {t('upload.title')}
       </Typography>
       <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-        Select a video file (up to 30s) and provide a title for your analysis.
+        {t('upload.subtitle')}
       </Typography>
 
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
         <label htmlFor="video-upload-button">
           <Input accept="video/*" id="video-upload-button" type="file" onChange={handleFileChange} disabled={isUploading} />
           <Button variant="outlined" component="span" startIcon={<CloudUploadIcon />} disabled={isUploading}>
-            {file ? 'Change Video' : 'Select Video'}
+            {file ? '' + t('upload.changeVideo') : t('upload.selectVideo')}
           </Button>
         </label>
 
         {file && (
           <>
-            <Typography variant="body2">Ficheiro selecionado: <strong>{file.name}</strong></Typography>
+            <Typography variant="body2">{t('upload.selectedFile')}: <strong>{file.name}</strong></Typography>
             <TextField
               fullWidth
-              label="Analysis Title"
+              label={t('upload.inputLabel')}
               variant="outlined"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               disabled={isUploading}
             />
             <Button onClick={handleUpload} variant="contained" size="large" disabled={isUploading}>
-              {isUploading ? 'Processing...' : 'Analyzed'}
+              {isUploading ? t('upload.buttonProcessing') : t('upload.buttonAnalyze')}
             </Button>
           </>
         )}

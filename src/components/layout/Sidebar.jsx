@@ -8,11 +8,13 @@ import VideoLibraryIcon from '@mui/icons-material/VideoLibrary';
 const drawerWidth = 240;
 
 export const Sidebar = () => {
+  const { t } = useTranslation();
+
   const location = useLocation();
 
   const navItems = [
-    { text: 'New Analysis', icon: <DashboardIcon />, path: '/dashboard' },
-    { text: 'My Analyses', icon: <VideoLibraryIcon />, path: '/dashboard/analyses' }, 
+    { text: t('app.newAnalysis'), icon: <DashboardIcon />, path: '/dashboard' },
+    { text: t('app.myAnalyses'), icon: <VideoLibraryIcon />, path: '/dashboard/analyses' }, 
   ];
 
   return (
@@ -31,7 +33,7 @@ export const Sidebar = () => {
             <ListItem key={item.text} disablePadding>
               <ListItemButton component={Link} to={item.path} selected={location.pathname === item.path}>
                 <ListItemIcon>{item.icon}</ListItemIcon>
-                <ListItemText primary={item.text} />
+                <ListItemText primary={t('app.settings')} />
               </ListItemButton>
             </ListItem>
           ))}
@@ -41,7 +43,7 @@ export const Sidebar = () => {
            <ListItem disablePadding>
               <ListItemButton component={Link} to="/settings" selected={location.pathname === '/settings'}>
                 <ListItemIcon><SettingsIcon /></ListItemIcon>
-                <ListItemText primary="Settings" />
+                <ListItemText primary={t('app.settings')} />
               </ListItemButton>
             </ListItem>
         </List>

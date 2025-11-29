@@ -1,17 +1,20 @@
 // src/components/dashboard/AnalysisCard.jsx
 import React from 'react';
-import { ListItem, ListItemButton, ListItemText, ListItemIcon, Chip, Box, LinearProgress } from '@mui/material'; 
+import { ListItem, ListItemButton, ListItemText, ListItemIcon, Chip, Box, LinearProgress } from '@mui/material';
 import MovieIcon from '@mui/icons-material/Movie';
 import { Link, useLocation } from 'react-router-dom';
-
-const statusStyles = {
-  COMPLETED: { label: 'Concluído', color: 'success' },
-  PROCESSING: { label: 'A processar', color: 'warning' },
-  PENDING: { label: 'Pendente', color: 'info' },
-  FAILED: { label: 'Falhou', color: 'error' },
-};
+import { useTranslation } from 'react-i18next';
 
 export const AnalysisCard = ({ analysis }) => {
+  const { t } = useTranslation();
+  
+  const statusStyles = {
+    COMPLETED: { label: t('status.COMPLETED'), color: 'success' },
+    PROCESSING: { label: t('status.PROCESSING'), color: 'warning' },
+    PENDING: { label: t('status.PENDING'), color: 'info' },
+    FAILED: { label: t('status.FAILED'), color: 'error' },
+  };
+
   const location = useLocation();
   const isActive = location.pathname === `/dashboard/analysis/${analysis.id}`;
   const statusInfo = statusStyles[analysis.status] || { label: analysis.status, color: 'default' };

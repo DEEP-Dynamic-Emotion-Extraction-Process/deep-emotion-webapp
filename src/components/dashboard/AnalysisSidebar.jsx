@@ -7,10 +7,12 @@ import SettingsIcon from '@mui/icons-material/Settings';
 
 import { useAnalyses } from '../../contexts/AnalysisContext'; 
 import { AnalysisCard } from './AnalysisCard';
+import { useTranslation } from 'react-i18next';
 
 const drawerWidth = 280;
 
 export const AnalysisSidebar = () => {
+  const { t } = useTranslation();
   const { analyses, isLoading, error } = useAnalyses();
 
   let content;
@@ -51,7 +53,7 @@ export const AnalysisSidebar = () => {
           component={Link}
           to="/dashboard"
         >
-          New Analysis
+          {t('app.newAnalysis')}
         </Button>
       </Box>
       <Divider />
@@ -64,7 +66,7 @@ export const AnalysisSidebar = () => {
             <ListItem disablePadding>
                 <ListItemButton component={Link} to="/settings">
                     <ListItemIcon><SettingsIcon /></ListItemIcon>
-                    <ListItemText primary="Settings" />
+                    <ListItemText primary={t('app.settings')} />
                 </ListItemButton>
             </ListItem>
         </List>
