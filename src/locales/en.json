@@ -1,74 +1,85 @@
 {
   "app": {
     "title": "DeepEmotion",
-    "dashboard": "Painel",
-    "newAnalysis": "Nova Análise",
-    "myAnalyses": "Minhas Análises",
-    "settings": "Configurações",
-    "login": "Entrar",
-    "register": "Cadastro",
-    "logout": "Sair",
-    "changeLanguage": "Idioma"
+    "dashboard": "Dashboard",
+    "newAnalysis": "New Analysis",
+    "myAnalyses": "My Analyses",
+    "settings": "Settings",
+    "login": "Login",
+    "register": "Register",
+    "logout": "Logout",
+    "changeLanguage": "Language"
+  },
+  "user": {
+    "accountSettings": "Account Settings",
+    "profileInfo": "Profile Information",
+    "loading": "Loading user data...",
+    "name": "Name",
+    "email": "Email",
+    "userID": "User ID",
+    "accountManagement": "Account Management",
+    "changePassword": "Change Password",
+    "deleteAccount": "Delete Account"
   },
   "home": {
-    "welcome": "Bem-vindo ao DeepEmotion",
-    "subtitle": "A sua plataforma inteligente para extrair e visualizar emoções de vídeos de forma dinâmica e intuitiva.",
-    "getStarted": "Começar Agora"
+    "welcome": "Welcome to DeepEmotion",
+    "subtitle": "Your intelligent platform to extract and visualize emotions from videos in a dynamic and intuitive way.",
+    "getStarted": "Get Started"
   },
   "auth": {
-    "createAccount": "Criar uma Conta",
-    "fullName": "Nome Completo",
-    "email": "Endereço de Email",
-    "password": "Senha",
-    "registerButton": "Registrar",
-    "loginButton": "Entrar",
-    "failed": "Falha na operação. Tente novamente."
+    "createAccount": "Create an Account",
+    "fullName": "Full Name",
+    "email": "Email Address",
+    "password": "Password",
+    "registerButton": "Register",
+    "loginButton": "Login",
+    "failed": "Operation failed. Please try again."
   },
   "upload": {
-    "title": "Enviar Novo Vídeo para Análise",
-    "subtitle": "Selecione um arquivo de vídeo (até 30s) e forneça um título.",
-    "selectVideo": "Selecionar Vídeo",
-    "changeVideo": "Alterar Vídeo",
-    "selectedFile": "Arquivo selecionado",
-    "inputLabel": "Título da Análise",
-    "buttonProcessing": "Processando...",
-    "buttonAnalyze": "Analisar",
-    "statusUploading": "Enviando...",
-    "statusCompleted": "Envio completo! Solicitando análise...",
-    "statusSuccess": "Análise iniciada com sucesso!",
-    "errorMissing": "Por favor selecione um arquivo e forneça um título."
+    "title": "Upload a New Video for Analysis",
+    "subtitle": "Select a video file (up to 30s) and provide a title for your analysis.",
+    "selectVideo": "Select Video",
+    "changeVideo": "Change Video",
+    "selectedFile": "Selected file",
+    "inputLabel": "Analysis Title",
+    "buttonProcessing": "Processing...",
+    "buttonAnalyze": "Analyze",
+    "statusUploading": "Uploading...",
+    "statusCompleted": "Upload completed! Requesting analysis...",
+    "statusSuccess": "Analysis started successfully!",
+    "errorMissing": "Please select a file and provide a title."
   },
   "analysis": {
-    "timelineTitle": "Linha do Tempo das Emoções",
-    "insightsTitle": "Insights da Análise",
-    "notFound": "Análise não encontrada.",
-    "loadingDetails": "Carregando detalhes..."
+    "timelineTitle": "Emotion Timeline",
+    "insightsTitle": "Analysis Insights",
+    "notFound": "Analysis not found.",
+    "loadingDetails": "Loading analysis details..."
   },
   "status": {
-    "COMPLETED": "Concluído",
-    "PROCESSING": "Processando",
-    "PENDING": "Pendente",
-    "FAILED": "Falhou"
+    "COMPLETED": "Completed",
+    "PROCESSING": "Processing",
+    "PENDING": "Pending",
+    "FAILED": "Failed"
   },
   "emotions": {
-    "angry": "Raiva",
-    "disgust": "Nojo",
-    "fear": "Medo",
-    "happy": "Felicidade",
-    "neutral": "Neutro",
-    "sad": "Tristeza",
-    "surprised": "Surpresa"
+    "angry": "Angry",
+    "disgust": "Disgust",
+    "fear": "Fear",
+    "happy": "Happy",
+    "neutral": "Neutral",
+    "sad": "Sad",
+    "surprised": "Surprised"
   },
   "charts": {
-    "predominant": "Emoção Predominante",
-    "analyzedImages": "Imagens Analisadas",
-    "confidence": "Confiança",
-    "frequencyTitle": "Frequência das Emoções",
-    "radarTitle": "Radar de Frequência",
-    "durationTitle": "Duração de Pico (Segundos)",
-    "analyzing": "Analisando dados...",
-    "noData": "Não há dados suficientes para exibir insights.",
-    "primary": "Primária",
-    "secondary": "Secundária"
+    "predominant": "Predominant Emotion",
+    "analyzedImages": "Images Analyzed",
+    "confidence": "Confidence",
+    "frequencyTitle": "Frequency of Detected Emotions",
+    "radarTitle": "Frequency Radar",
+    "durationTitle": "Peak Duration (Seconds)",
+    "analyzing": "Analyzing data...",
+    "noData": "There is not enough data to display insights.",
+    "primary": "Primary",
+    "secondary": "Secondary"
   }
 }
