@@ -148,7 +148,7 @@ export const InsightsCharts = ({ frames }) => {
         });
         let currentStreakEmotion = null;
         let currentStreakLength = 0;
-        const FPS = 24;
+        const FPS = 31;
 
         frames.forEach(frame => {
             let primaryEmotionThisFrame = null;
@@ -213,7 +213,7 @@ export const InsightsCharts = ({ frames }) => {
         ALL_EMOTIONS.forEach(emotion => {
             if (maxStreaksInFrames[emotion] > 0) {
                 durationChartData.push({
-                    emotion: EMOTION_MAP[emotion],
+                    emotion: t(`emotions.${emotion.toLowerCase()}`),
                     duration: parseFloat((maxStreaksInFrames[emotion] / FPS).toFixed(2)),
                     color: EMOTION_COLORS[EMOTION_MAP[emotion]]
                 });
@@ -227,7 +227,7 @@ export const InsightsCharts = ({ frames }) => {
             averageConfidence: totalAverage,
             emotionPercentages,
             durationChart: {
-                labels: durationChartData.map(d => t(`emotions.${d.emotion.toLowerCase()}`)),
+                labels: durationChartData.map(d => d.emotion),
                 data: durationChartData.map(d => d.duration),
                 colors: durationChartData.map(d => d.color)
             }
@@ -249,30 +249,17 @@ export const InsightsCharts = ({ frames }) => {
 
     const barSeries = ALL_EMOTIONS.flatMap((emotion, index) => {
         const primaryValue = chartData.emotionPercentages[index][0] || 0;
-        const secondaryValue = chartData.emotionPercentages[index][1] || 0;
 
         return [
             {
                 data: ALL_EMOTIONS.map((_, i) =>
                     i === index ? parseFloat(primaryValue.toFixed(2)) : 0
                 ),
-                label: `${t('charts.primary')} (${getEmotionLabel(emotion)})`,
+                label: `${getEmotionLabel(emotion)}`,
                 id: `pvId-${index}`,
                 yAxisId: 'leftAxisId',
                 color: EMOTION_COLORS[EMOTION_MAP[emotion]],
                 stack: 'pv-stack',
-                highlightScope: { highlight: 'item' },
-                valueFormatter: (value) => `${value.toFixed(2)}%`,
-            },
-            {
-                data: ALL_EMOTIONS.map((_, i) =>
-                    i === index ? +secondaryValue.toFixed(2) : 0
-                ),
-                label: `${t('charts.secondary')} (${getEmotionLabel(emotion)})`,
-                id: `uvId-${index}`,
-                yAxisId: 'leftAxisId',
-                color: lightenColor(EMOTION_COLORS[EMOTION_MAP[emotion]], 20),
-                stack: 'uv-stack',
                 highlightScope: { highlight: 'item' },
                 valueFormatter: (value) => `${value.toFixed(2)}%`,
             }
@@ -281,33 +268,22 @@ export const InsightsCharts = ({ frames }) => {
 
     const radarMetrics = [];
     const radarPrimaryData = [];
-    const radarSecondaryData = [];
 
     chartData.emotionPercentages.forEach(([primary, secondary], index) => {
         if (primary > 0 || secondary > 0) {
             radarMetrics.push(t(`emotions.${ALL_EMOTIONS[index].toLowerCase()}`));
             radarPrimaryData.push(parseFloat(primary.toFixed(2)));
-            radarSecondaryData.push(parseFloat(secondary.toFixed(2)));
         }
     });
 
     const radarSeries = [
         {
             data: radarPrimaryData,
-            label: t('charts.primary'),
             area: true,
             fillArea: true,
             color: 'rgba(76, 175, 80, 0.6)',
             valueFormatter: (value) => `${value.toFixed(2)}%`
         },
-        {
-            data: radarSecondaryData,
-            label: t('charts.secondary'),
-            area: true,
-            fillArea: true,
-            color: 'rgba(255, 193, 7, 0.6)',
-            valueFormatter: (value) => `${value.toFixed(2)}%`
-        }
     ];
 
     return (
@@ -403,7 +379,7 @@ export const InsightsCharts = ({ frames }) => {
 
                                 yAxis={[{
                                     id: 'y-axis-id', 
-                                    label: 'Seconds'
+                                    label: t('charts.seconds')
                                 }]}
 
                                 series={[{
@@ -415,6 +391,7 @@ export const InsightsCharts = ({ frames }) => {
                                 
 
                                 height={220}
+                                margin={0}
                                 sx={componentStyles.chartStyling}
                                 hideLegend={true}
                             />

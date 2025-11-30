@@ -1,8 +1,8 @@
 // src/components/analysis/EmotionTimeline.jsx
 import React from 'react';
 import { Box, Tooltip, useTheme } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 
-// O mapeamento de cores agora usa chaves em MAIÚSCULAS para corresponder à nova lógica
 const emotionColorMapping = {
   HAPPY: '#2e7d32',       // Verde
   SAD: '#1976d2',         // Azul
@@ -11,24 +11,18 @@ const emotionColorMapping = {
   NEUTRAL: '#757575',     // Cinzento
   FEAR: '#8e24aa',        // Roxo
   DISGUST: '#cddc39',     // Lima
-  DEFAULT: '#424242'
+  DEFAULT: '#424242'      // Cinzento escuro
 };
 
-/**
- * Renderiza uma linha do tempo interativa das emoções detetadas.
- * @param {object} props
- * @param {Array} props.frames - A lista de frames com dados de emoção.
- * @param {number} props.duration - A duração total do vídeo em segundos.
- * @param {Function} props.onSeek - Função para ser chamada quando o utilizador clica na linha do tempo.
- */
 export const EmotionTimeline = ({ frames, duration, onSeek }) => {
+  const { t } = useTranslation();
+
   const theme = useTheme();
 
   if (!frames || frames.length === 0) {
-    return null; // Não renderiza nada se não houver frames
+    return null;
   }
 
-  // Função para lidar com o clique na linha do tempo
   const handleTimelineClick = (event) => {
     if (typeof onSeek !== 'function') return;
 
@@ -42,7 +36,7 @@ export const EmotionTimeline = ({ frames, duration, onSeek }) => {
   };
 
   return (
-    <Tooltip title="Clique para navegar no vídeo" followCursor>
+    <Tooltip title={t('timeline.clickToView')} followCursor>
       <Box
         onClick={handleTimelineClick}
         sx={{
@@ -73,7 +67,6 @@ export const EmotionTimeline = ({ frames, duration, onSeek }) => {
               dominantEmotion = frame.emotions[dominantIndex].toUpperCase();
             }
           }
-          // --- FIM DA LÓGICA ATUALIZADA ---
 
           const nextFrame = frames[index + 1];
           const startTime = frame.video_timestamp_sec;
@@ -84,7 +77,7 @@ export const EmotionTimeline = ({ frames, duration, onSeek }) => {
           const color = emotionColorMapping[dominantEmotion] || emotionColorMapping.DEFAULT;
 
           return (
-            <Tooltip key={frame.id} title={`${dominantEmotion} em ${startTime.toFixed(2)}s`}>
+            <Tooltip key={frame.id} title={`${t(`emotions.${dominantEmotion.toLowerCase()}`)} ${t('timeline.in')} ${startTime.toFixed(2)}s`}>
               <Box
                 sx={{
                   width: `${segmentWidth}%`,

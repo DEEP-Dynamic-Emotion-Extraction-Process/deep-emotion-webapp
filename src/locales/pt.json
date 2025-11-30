@@ -80,6 +80,11 @@
     "analyzing": "Analisando dados...",
     "noData": "Não há dados suficientes para exibir insights.",
     "primary": "Primária",
-    "secondary": "Secundária"
+    "secondary": "Secundária",
+    "seconds": "Segundos"
+  },
+  "timeline": {
+    "clickToView": "Clique para navegar no vídeo",
+    "in": "em"
   }
 }
